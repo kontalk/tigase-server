@@ -622,10 +622,10 @@ public abstract class IOService<RefObject>
 	}
 
 	/**
-	 * Method description
+	 * Returns the peer certificate object, if any.
 	 *
-	 *
-	 *
+	 * @return the certificate object, null if not available or the connection
+	 * is not encrypted.
 	 */
 	public Certificate getPeerCertificate() {
 		return peerCertificate;
