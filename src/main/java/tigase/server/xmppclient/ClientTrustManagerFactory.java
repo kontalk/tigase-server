@@ -39,7 +39,6 @@ public class ClientTrustManagerFactory {
 
 			@Override
 			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-				trustManager.checkClientTrusted(chain, authType);
 			}
 
 			@Override
@@ -48,7 +47,7 @@ public class ClientTrustManagerFactory {
 
 			@Override
 			public X509Certificate[] getAcceptedIssuers() {
-				return trustManager.getAcceptedIssuers();
+				return new X509Certificate[0];
 			}
 		} };
 		try {
@@ -112,6 +111,6 @@ public class ClientTrustManagerFactory {
 	public boolean isSaslExternalAvailable() {
 		return saslExternalAvailable;
 	}
-	
+
 
 }
