@@ -27,6 +27,7 @@ package tigase.server.xmppclient;
 //~--- non-JDK imports --------------------------------------------------------
 
 import java.io.IOException;
+import java.security.cert.CertificateEncodingException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,8 +38,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.Deflater;
+
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+
 import tigase.conf.ConfigurationException;
 import tigase.net.IOService;
 import tigase.net.SocketThread;
@@ -49,6 +52,7 @@ import tigase.server.Message;
 import tigase.server.Packet;
 import tigase.server.Presence;
 import tigase.server.ReceiverTimeoutHandler;
+import tigase.util.Base64;
 import tigase.util.DNSResolver;
 import tigase.util.RoutingsContainer;
 import tigase.util.TigaseStringprepException;
@@ -256,7 +260,7 @@ public class ClientConnectionManager
 							id });
 				}
 			}
-			
+
 			// If client is sending packet with 'from' attribute set then packets
 			// are being duplicated in clustered environment, so best it would be
 			// to remove 'from' attribute as it will be set later during processing
@@ -416,6 +420,15 @@ public class ClientConnectionManager
 			Command.addFieldValue(clientAuthCommand, "session-id", id);
 			Command.addFieldValue(clientAuthCommand, "peer-certificate", "true");
 			Command.addFieldMultiValue(clientAuthCommand, "jids", serv.getPeersJIDsFromCert());
+
+			try {
+				final String encodedCert = Base64.encode(serv.getPeerCertificate().getEncoded());
+				Command.addFieldValue(clientAuthCommand, "peer-certificate-data", encodedCert);
+			}
+			catch (CertificateEncodingException e) {
+				log.log(Level.WARNING, "unable to load peer certificate", e);
+			}
+
 			addOutPacket(clientAuthCommand);
 		}
 	}
@@ -807,7 +820,7 @@ public class ClientConnectionManager
 				elem_features.addChildren(Command.getData(iqc));
 
 				preprocessStreamFeatures(serv, elem_features);
-				
+
 				Packet result = Packet.packetInstance(elem_features, null, null);
 
 				// Is it actually needed?? Yes, it is needed, IOService is
@@ -844,7 +857,7 @@ public class ClientConnectionManager
 							}
 
 							String redirectMessage = prepareSeeOtherHost(serv, see_other_host);
-						
+
 							try {
 								SocketThread.removeSocketService(serv);
 								serv.writeRawData(redirectMessage);
@@ -1125,21 +1138,21 @@ public class ClientConnectionManager
 	protected boolean isTlsWantClientAuthEnabled() {
 		return clientTrustManagerFactory.isSaslExternalAvailable();
 	}
-	
+
 	protected String prepareStreamClose(XMPPIOService<Object> serv) {
 		return "</stream:stream>";
 	}
-	
+
 	protected String prepareStreamOpen(XMPPIOService<Object> serv, String id, String hostname) {
 		return "<?xml version='1.0'?><stream:stream" + " xmlns='" +
 					XMLNS + "'" + " xmlns:stream='http://etherx.jabber.org/streams'" + " from='" +
 					hostname + "'" + " id='" + id + "'" + " version='1.0' xml:lang='en'>";
 	}
-	
+
 	protected String prepareStreamError(XMPPIOService<Object> serv, List<Element> err_el) {
 		return "<stream:error>" + err_el.get(0).toString() + "</stream:error>";
 	}
-	
+
 	protected String prepareStreamError(XMPPIOService<Object> serv, String errorName, String hostname) {
 		return "<?xml version='1.0'?><stream:stream" + " xmlns='" + XMLNS + "'"
 				+ " xmlns:stream='http://etherx.jabber.org/streams'"
@@ -1148,20 +1161,20 @@ public class ClientConnectionManager
 				+ "<" + errorName + " xmlns='urn:ietf:params:xml:ns:xmpp-streams'/>"
 				+ "</stream:error>" + "</stream:stream>";
 	}
-	
+
 	protected String prepareSeeOtherHost(XMPPIOService<Object> serv, BareJID see_other_host) {
 		return "<stream:stream" + " xmlns='" + XMLNS + "'"
 				+ " xmlns:stream='http://etherx.jabber.org/streams'"
 				+ " id='tigase-error-tigase'" + " from='" + getDefVHostItem() + "'"
 				+ " version='1.0' xml:lang='en'>" + see_other_host_strategy.getStreamError(
 						"urn:ietf:params:xml:ns:xmpp-streams", see_other_host).toString()
-				+ "</stream:stream>";	
-	}	
-	
-	protected void preprocessStreamFeatures(XMPPIOService<Object> serv, Element elem_features) {
-		
+				+ "</stream:stream>";
 	}
-	
+
+	protected void preprocessStreamFeatures(XMPPIOService<Object> serv, Element elem_features) {
+
+	}
+
 	private List<Element> getFeatures(XMPPIOService service) {
 		List<Element> results = new LinkedList<Element>();
 

@@ -41,6 +41,9 @@ import static tigase.server.xmppsession.SessionManagerConfig.getProcessor;
 import static tigase.server.xmppsession.SessionManagerConfig.sessionCloseProcId;
 import static tigase.server.xmppsession.SessionManagerConfig.sessionOpenProcId;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.AbstractQueue;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -65,6 +68,8 @@ import java.util.logging.Logger;
 import javax.script.Bindings;
 
 import tigase.auth.mechanisms.SaslEXTERNAL;
+import tigase.cert.CertificateEntry;
+import tigase.cert.CertificateUtil;
 import tigase.conf.Configurable;
 import tigase.conf.ConfigurationException;
 import tigase.db.AuthRepository;
@@ -85,6 +90,7 @@ import tigase.server.XMPPServer;
 import tigase.server.script.CommandIfc;
 import tigase.sys.OnlineJidsReporter;
 import tigase.sys.TigaseRuntime;
+import tigase.util.Base64;
 import tigase.util.ProcessingThreads;
 import tigase.util.QueueItem;
 import tigase.util.TigaseStringprepException;
@@ -396,7 +402,7 @@ public class SessionManager
 	public boolean containsJid(BareJID jid) {
 		return sessionsByNodeId.containsKey(jid);
 	}
-	
+
 	@Override
 	public boolean containsJidLocally(BareJID jid) {
 		return sessionsByNodeId.containsKey(jid);
@@ -1196,7 +1202,7 @@ public class SessionManager
 	 * @param userId
 	 * @param closeOnly
 	 */
-	protected void closeConnection(XMPPResourceConnection connection, JID connectionId, 
+	protected void closeConnection(XMPPResourceConnection connection, JID connectionId,
 			String userId, boolean closeOnly) {
 		if (log.isLoggable(Level.FINER)) {
 			log.log(Level.FINER, "Stream closed from: {0}", connectionId);
@@ -1641,12 +1647,12 @@ public class SessionManager
 			// closeConnection(pc.getFrom(), false);
 			//
 			// we need to use other aproach then, as we need to remove session ASAP,
-			// so let's at first remove XMPPResourceConnection in this thread and later add packet to 
+			// so let's at first remove XMPPResourceConnection in this thread and later add packet to
 			// queue to close it later on
 			if (connection != null) {
 				// first remove connection from connections map
 				connectionsByFrom.remove(iqc.getFrom(), connection);
-				
+
 				// ok, now remove connection from session
 				XMPPSession session = connection.getParentSession();
 				if (session != null) {
@@ -1659,7 +1665,7 @@ public class SessionManager
 					}
 				}
 			}
-			
+
 			// now we add packet to processing thread to let it close properly in separate thread
 			ProcessingThreads<ProcessorWorkerThread> pt = workerThreads.get(sessionCloseProc
 					.id());
@@ -1668,7 +1674,7 @@ public class SessionManager
 				pt = workerThreads.get(defPluginsThreadsPool);
 			}
 			pt.addItem(sessionCloseProc, iqc, connection);
-			
+
 			processing_result = true;
 		}
 
@@ -1866,6 +1872,19 @@ public class SessionManager
 			if (connection != null) {
 				String[] jids = Command.getFieldValues(pc, "jids");
 
+				String _certData = Command.getFieldValue(pc, "peer-certificate-data");
+				if (_certData != null) {
+					try {
+						byte[] certData = Base64.decode(_certData);
+						Reader certReader = new InputStreamReader(new ByteArrayInputStream(certData));
+						CertificateEntry peerCert = CertificateUtil.parseCertificate(certReader);
+						connection.putSessionData(SaslEXTERNAL.SESSION_AUTH_PEER_CERT, peerCert);
+					}
+					catch (Exception e) {
+						log.log(Level.INFO, "error parsing peer certificate", e);
+					}
+				}
+
 				connection.putSessionData(SaslEXTERNAL.SASL_EXTERNAL_ALLOWED, Boolean.TRUE);
 				connection.putSessionData(SaslEXTERNAL.SESSION_AUTH_JIDS_KEY, jids);
 				processing_result = true;
@@ -1969,7 +1988,7 @@ public class SessionManager
 			}
 			processing_result = true;
 			break;
-			
+
 		default :
 			if (getComponentId().equals(iqc.getStanzaTo()) && getComponentId().equals(iqc
 					.getPacketFrom())) {
@@ -2252,7 +2271,7 @@ public class SessionManager
 				if (currSize > maxUserSessionsDaily) {
 					maxUserSessionsDaily = currSize;
 				}
-				
+
 				++totalUserSessions;
 				if (log.isLoggable(Level.FINEST)) {
 					log.log(Level.FINEST, "Created new XMPPSession for: {0}", userId);
@@ -2597,7 +2616,7 @@ public class SessionManager
 		if (now.get(Calendar.YEAR) != lastDailyStatsReset.get(Calendar.YEAR)
 				|| now.get(Calendar.DAY_OF_YEAR) != lastDailyStatsReset.get(Calendar.DAY_OF_YEAR)) {
 			lastDailyStatsReset = Calendar.getInstance();
-			
+
 			maxUserSessionsYesterday = maxUserSessionsDaily;
 			maxUserSessionsDaily = sessionsByNodeId.size();
 		}
@@ -2607,7 +2626,7 @@ public class SessionManager
 	 * Date of moment where daily stats was resetted.
 	 */
 	private Calendar lastDailyStatsReset = Calendar.getInstance();
-	
+
 	private List<Element> getFeatures(XMPPResourceConnection session) {
 		List<Element> results = new LinkedList<Element>();
 
