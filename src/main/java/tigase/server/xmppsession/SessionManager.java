@@ -1876,8 +1876,7 @@ public class SessionManager
 				if (_certData != null) {
 					try {
 						byte[] certData = Base64.decode(_certData);
-						Reader certReader = new InputStreamReader(new ByteArrayInputStream(certData));
-						CertificateEntry peerCert = CertificateUtil.parseCertificate(certReader);
+						CertificateEntry peerCert = CertificateUtil.loadCertificate(certData);
 						connection.putSessionData(SaslEXTERNAL.SESSION_AUTH_PEER_CERT, peerCert);
 					}
 					catch (Exception e) {
