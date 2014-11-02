@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.security.auth.callback.CallbackHandler;
 
 import tigase.auth.impl.AuthRepoPlainCallbackHandler;
+import tigase.auth.mechanisms.PluginSettingsAware;
 import tigase.db.NonAuthUserRepository;
 import tigase.xmpp.XMPPResourceConnection;
 
@@ -41,6 +42,10 @@ public class CallbackHandlerFactory {
 		if (handler instanceof AuthRepositoryAware) {
 			((AuthRepositoryAware) handler).setAuthRepository(session.getAuthRepository());
 		}
+
+        if (handler instanceof PluginSettingsAware) {
+            ((PluginSettingsAware) handler).setPluginSettings(settings);
+        }
 
 		return handler;
 	}
