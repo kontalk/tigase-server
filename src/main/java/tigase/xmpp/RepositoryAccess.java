@@ -84,7 +84,7 @@ public abstract class RepositoryAccess {
 	/**
 	 * Handle to user repository - permanent data base for storing user data.
 	 */
-	private UserRepository repo = null;
+	protected UserRepository repo = null;
 
 	// private boolean anon_allowed = false;
 

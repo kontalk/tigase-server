@@ -519,6 +519,18 @@ public class XMPPResourceConnection
 	 *
 	 *
 	 *
+	 * @return a value of <code>UserRepository</code>
+	 */
+	public UserRepository getUserRepository() {
+		return repo;
+	}
+
+	/**
+	 * Method description
+	 *
+	 *
+	 *
+	 *
 	 * @return a value of <code>long</code>
 	 */
 	public long getAuthTime() {
