@@ -41,9 +41,6 @@ import static tigase.server.xmppsession.SessionManagerConfig.getProcessor;
 import static tigase.server.xmppsession.SessionManagerConfig.sessionCloseProcId;
 import static tigase.server.xmppsession.SessionManagerConfig.sessionOpenProcId;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.AbstractQueue;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
