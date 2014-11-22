@@ -1889,9 +1889,9 @@ public class Presence
 			int      pres_cnt      = 0;
 
 			for (JID buddy : buddies) {
-				String status = roster_util.getCustomStatus(session, buddy);
+				Element child = roster_util.getCustomChild(session, buddy);
 
-				if (status != null) {
+				if (child != null) {
 					Packet pack = sendPresence(StanzaType.unavailable, buddy, session.getJID(),
 							results, null);
 
@@ -1901,7 +1901,7 @@ public class Presence
 					}
 					pack.setPriority(pack_priority);
 					pack.setPacketTo(session.getConnectionId());
-					pack.getElement().addChild(new Element("status", status));
+					pack.getElement().addChild(child);
 				}
 			}    // end of for (String buddy: buddies)
 		}

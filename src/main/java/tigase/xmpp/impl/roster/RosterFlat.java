@@ -40,16 +40,11 @@ import tigase.xmpp.XMPPResourceConnection;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Arrays;
-import java.util.Comparator;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.Map;
-import java.util.Queue;
 
 /**
  * Describe class RosterFlat here.
@@ -69,6 +64,12 @@ public class RosterFlat
 	private static final SimpleParser parser = SingletonFactory.getParserInstance();
 	private static int maxRosterSize         = new Long(Runtime.getRuntime().maxMemory() /
 																							 250000L).intValue();
+
+	private final SimpleDateFormat formatter;
+	{
+		this.formatter = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" );
+		this.formatter.setTimeZone( TimeZone.getTimeZone("UTC") );
+	}
 
 	//~--- methods --------------------------------------------------------------
 
@@ -606,21 +607,21 @@ public class RosterFlat
 	 * @throws NotAuthorizedException
 	 * @throws TigaseDBException
 	 */
-	public String getCustomStatus(XMPPResourceConnection session, JID buddy)
+	public Element getCustomChild(XMPPResourceConnection session, JID buddy)
 					throws NotAuthorizedException, TigaseDBException {
 		RosterElement rel = getRosterElement(session, buddy);
-		String result     = null;
 
-		if (rel != null) {
-			if (rel.getLastSeen() > RosterElement.INITIAL_LAST_SEEN_VAL) {
-				result = "Buddy last seen on: " + new Date(rel.getLastSeen()) + ", weight: " +
-								 rel.getWeight();
-			} else {
-				result = "Never seen";
+		if (rel != null && rel.getLastSeen() > RosterElement.INITIAL_LAST_SEEN_VAL) {
+			String stamp;
+			synchronized (formatter) {
+				stamp = formatter.format(new Date(rel.getLastSeen()));
 			}
+
+			return new Element("delay", new String[]{
+					"stamp", "xmlns"}, new String[]{stamp, "urn:xmpp:delay"});
 		}
 
-		return result;
+		return null;
 	}
 
 	//~--- methods --------------------------------------------------------------

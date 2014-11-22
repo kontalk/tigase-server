@@ -28,6 +28,7 @@ import tigase.db.TigaseDBException;
 
 import tigase.util.TigaseStringprepException;
 
+import tigase.xml.Element;
 import tigase.xmpp.JID;
 import tigase.xmpp.NotAuthorizedException;
 import tigase.xmpp.XMPPResourceConnection;
@@ -372,7 +373,7 @@ public class Roster extends RosterAbstract {
 		
 	}
 	
-	public String getCustomStatus(XMPPResourceConnection session, JID buddy) {
+	public Element getCustomChild(XMPPResourceConnection session, JID buddy) {
 		return null;
 	}
 

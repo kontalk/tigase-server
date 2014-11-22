@@ -938,7 +938,7 @@ public abstract class RosterAbstract {
 	 * @throws TigaseDBException
 	 * @throws NotAuthorizedException
 	 */
-	public abstract String getCustomStatus(XMPPResourceConnection session, JID buddy)
+	public abstract Element getCustomChild(XMPPResourceConnection session, JID buddy)
 					throws NotAuthorizedException, TigaseDBException;
 
 	/**
