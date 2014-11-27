@@ -3,7 +3,6 @@
 	<properties>
 		<packaging.type>pom</packaging.type>
 		<dist_path>../../..</dist_path>
-		<guide_directory>user</guide_directory>
 		<guide_name>User</guide_name>
 	</properties>
 	<modelVersion>4.0.0</modelVersion>
@@ -52,6 +51,10 @@
 					<execution>
 						<phase>generate-resources</phase>
 						<id>generate-webhelp</id>
+					</execution>
+					<execution>
+						<phase>generate-resources</phase>
+						<id>generate-epub3</id>
 					</execution>
 				</executions>
 			</plugin>
