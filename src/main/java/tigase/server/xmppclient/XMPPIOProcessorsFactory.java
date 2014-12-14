@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import tigase.server.ConnectionManager;
 
@@ -38,6 +39,7 @@ public class XMPPIOProcessorsFactory {
 	private static final Logger log = Logger.getLogger(XMPPIOProcessorsFactory.class.getCanonicalName());
 	
 	private static final String IO_PROCESSORS_PROP_KEY = "processors";
+	private static final String IO_PROCESSORS_CLASSES_PROP_KEY = "processors-classes";
 	
 	private static final Map<String,Class<? extends XMPPIOProcessor>> PROCESSORS = new HashMap<String,Class<? extends XMPPIOProcessor>>();
 	
@@ -47,14 +49,37 @@ public class XMPPIOProcessorsFactory {
 	
 	public static XMPPIOProcessor[] updateIOProcessors(ConnectionManager connectionManager,
 			XMPPIOProcessor[] activeProcessors, Map<String,Object> props) {
-		
+
 		if (props.containsKey(IO_PROCESSORS_PROP_KEY)) {
 			String[] processorsArr = (String[]) props.get(IO_PROCESSORS_PROP_KEY);
 			List<XMPPIOProcessor> processors = new ArrayList<XMPPIOProcessor>();
 			
 			if (processorsArr != null) {
-				
-				for (String procId : processorsArr) {
+
+				String[] classesArr = (String[]) props.get(IO_PROCESSORS_CLASSES_PROP_KEY);
+				if (classesArr != null && classesArr.length != processorsArr.length) {
+					log.log(Level.WARNING, IO_PROCESSORS_CLASSES_PROP_KEY + " parameter doesn't match " +
+							IO_PROCESSORS_PROP_KEY + " paramater");
+					// ignore the error and go on
+					classesArr = null;
+				}
+
+				for (int i = 0; i < processorsArr.length; i++) {
+					String procId = processorsArr[i];
+					if (classesArr != null) {
+						String className = classesArr[i];
+						try {
+							PROCESSORS.put(procId, (Class<? extends XMPPIOProcessor>) Class.forName(className));
+						}
+						catch (ClassCastException e) {
+							log.log(Level.WARNING, "Processor class {0} is not a {1}, skipping",
+									new String[] { className, XMPPIOProcessor.class.getSimpleName()});
+						}
+						catch (ClassNotFoundException e) {
+							log.log(Level.WARNING, "Processor class {0} not found, skipping", className);
+						}
+					}
+
 					XMPPIOProcessor proc = findProcessor(activeProcessors, procId);
 					
 					if (proc != null) {
