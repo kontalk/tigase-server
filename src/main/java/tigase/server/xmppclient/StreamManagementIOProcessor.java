@@ -239,9 +239,18 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 			return;
 		
 		OutQueue outQueue = (OutQueue) service.getSessionData().get(OUT_COUNTER_KEY);		
-		if (outQueue != null && outQueue.waitingForAck() >= default_ack_request_count) {
+		if (outQueue != null && shouldRequestAck(service, outQueue)) {
 			service.writeRawData("<" + REQ_NAME + " xmlns='" + XMLNS + "' />");
 		}
+	}
+
+	/**
+	 * Override this method to define a custom behaviour for request ack.
+	 * The default implementation will request an ack if there are more than {@link #default_ack_request_count}
+	 * packets waiting, so you probably want to OR your behaviour with this.
+	 */
+	protected boolean shouldRequestAck(XMPPIOService service, OutQueue outQueue) {
+		return outQueue.waitingForAck() >= default_ack_request_count;
 	}
 	
 	@Override
