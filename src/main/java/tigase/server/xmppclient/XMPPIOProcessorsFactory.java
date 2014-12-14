@@ -66,8 +66,9 @@ public class XMPPIOProcessorsFactory {
 
 				for (int i = 0; i < processorsArr.length; i++) {
 					String procId = processorsArr[i];
+					String className = null;
 					if (classesArr != null) {
-						String className = classesArr[i];
+						className = classesArr[i];
 						try {
 							PROCESSORS.put(procId, (Class<? extends XMPPIOProcessor>) Class.forName(className));
 						}
@@ -80,7 +81,7 @@ public class XMPPIOProcessorsFactory {
 						}
 					}
 
-					XMPPIOProcessor proc = findProcessor(activeProcessors, procId);
+					XMPPIOProcessor proc = findProcessor(activeProcessors, procId, className);
 					
 					if (proc != null) {
 						proc.setConnectionManager(connectionManager);
@@ -118,9 +119,9 @@ public class XMPPIOProcessorsFactory {
 		return results;
 	}
 	
-	public static XMPPIOProcessor findProcessor(XMPPIOProcessor[] activeProcessors, String procId) {
+	public static XMPPIOProcessor findProcessor(XMPPIOProcessor[] activeProcessors, String procId, String className) {
 		for (XMPPIOProcessor proc : activeProcessors) {
-			if (procId.equals(proc.getId())) {
+			if (procId.equals(proc.getId()) && (className == null || className.equals(proc.getClass().getName()))) {
 				return proc;
 			}
 		}
