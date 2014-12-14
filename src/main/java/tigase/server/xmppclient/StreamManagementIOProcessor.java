@@ -32,7 +32,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import tigase.net.IOServiceListener;
 import tigase.net.SocketThread;
-import tigase.server.*;
+import tigase.server.Command;
+import tigase.server.ConnectionManager;
+import tigase.server.Packet;
+import tigase.server.Presence;
 import tigase.util.TimerTask;
 import tigase.xml.Element;
 import tigase.xmpp.Authorization;
@@ -236,7 +239,7 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 			return;
 		
 		OutQueue outQueue = (OutQueue) service.getSessionData().get(OUT_COUNTER_KEY);		
-		if (outQueue != null && (outQueue.messagesWaitingForAck() > 0 || outQueue.waitingForAck() >= default_ack_request_count)) {
+		if (outQueue != null && outQueue.waitingForAck() >= default_ack_request_count) {
 			service.writeRawData("<" + REQ_NAME + " xmlns='" + XMLNS + "' />");
 		}
 	}
@@ -593,8 +596,6 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 	public static class OutQueue extends Counter {
 		
 		private final ArrayDeque<Packet> queue = new ArrayDeque<Packet>();
-		/** Number of message stanzas waiting to be sent */
-		private int messagesWaiting;
 		
 		/**
 		 * Append packet to waiting for ack queue
@@ -603,9 +604,6 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 		 */
 		public void append(Packet packet) {
 			if (!packet.wasProcessedBy(XMLNS)) {
-				if (packet.getElemName() == Message.ELEM_NAME) {
-					messagesWaiting++;
-				}
 				packet.processedBy(XMLNS);
 				queue.offer(packet);
 				inc();
@@ -625,15 +623,8 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 			}
 			
 			while (count < queue.size()) {
-				Packet packet = queue.poll();
-				if (packet.getElemName() == Message.ELEM_NAME) {
-					messagesWaiting--;
-				}
+				queue.poll();
 			}
-		}
-
-		public int messagesWaitingForAck() {
-			return messagesWaiting;
 		}
 		
 		/**
