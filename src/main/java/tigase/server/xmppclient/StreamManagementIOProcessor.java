@@ -129,6 +129,10 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 		
 		return FEATURES;
 	}
+
+	protected OutQueue newOutQueue(XMPPIOService service) {
+		return new OutQueue();
+	}
 	
 	@Override
 	public boolean processIncoming(XMPPIOService service, Packet packet) {		
@@ -138,7 +142,7 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 			}
 			else if (packet.getElemName() == ENABLE_NAME) {
 				service.getSessionData().putIfAbsent(IN_COUNTER_KEY, new Counter());
-				service.getSessionData().putIfAbsent(OUT_COUNTER_KEY, new OutQueue());
+				service.getSessionData().putIfAbsent(OUT_COUNTER_KEY, newOutQueue(service));
 				
 				
 				String id = null;
