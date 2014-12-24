@@ -141,9 +141,8 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 				return false;
 			}
 			else if (packet.getElemName() == ENABLE_NAME) {
-				service.getSessionData().putIfAbsent(IN_COUNTER_KEY, new Counter());
 				service.getSessionData().putIfAbsent(OUT_COUNTER_KEY, newOutQueue(service));
-				
+				service.getSessionData().putIfAbsent(IN_COUNTER_KEY, new Counter());
 				
 				String id = null;
 				String location = null;
