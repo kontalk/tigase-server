@@ -59,7 +59,7 @@ import tigase.xmpp.XMPPResourceConnection;
  */
 public class Message
 				extends XMPPProcessor
-				implements XMPPProcessorIfc, XMPPPreprocessorIfc, XMPPPacketFilterIfc {
+				implements XMPPProcessorIfc, XMPPPacketFilterIfc {
 
 	private static final String     ELEM_NAME = tigase.server.Message.ELEM_NAME;
 	private static final String[][] ELEMENTS  = {
@@ -302,15 +302,6 @@ public class Message
 			results.offer(Authorization.NOT_AUTHORIZED.getResponseMessage(packet,
 					"You must authorize session first.", true));
 		}    // end of try-catch
-	}
-
-	@Override
-	public boolean preProcess(Packet packet, XMPPResourceConnection session, NonAuthUserRepository repo, Queue<Packet> results, Map<String, Object> settings) {
-		boolean result = C2SDeliveryErrorProcessor.preProcess(packet, session, repo, results, settings);
-		if (result) {
-			packet.processedBy(ID);
-		}
-		return result;
 	}
 
 	/**
