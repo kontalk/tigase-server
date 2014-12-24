@@ -70,7 +70,7 @@ import static tigase.xmpp.impl.Message.*;
 })
 public class Message
 				extends AnnotatedXMPPProcessor
-				implements XMPPProcessorIfc, XMPPPreprocessorIfc, XMPPPacketFilterIfc {
+				implements XMPPProcessorIfc, XMPPPacketFilterIfc {
 
 	protected static final String     ELEM_NAME = tigase.server.Message.ELEM_NAME;
 
@@ -284,15 +284,6 @@ public class Message
 																																							 "The recipient is no longer available.", true));
 			}
 		}
-	}
-
-	@Override
-	public boolean preProcess(Packet packet, XMPPResourceConnection session, NonAuthUserRepository repo, Queue<Packet> results, Map<String, Object> settings) {
-		boolean result = C2SDeliveryErrorProcessor.preProcess(packet, session, repo, results, settings);
-		if (result) {
-			packet.processedBy(id());
-		}
-		return result;
 	}
 
 	private static enum MessageDeliveryRules {
