@@ -146,7 +146,7 @@ public class OfflineMessages
 	public void postProcess( final Packet packet, final XMPPResourceConnection conn,
 													 final NonAuthUserRepository repo, final Queue<Packet> queue,
 													 Map<String, Object> settings ) {
-		if ( conn == null ){
+		if ( conn == null || conn.getPresence() == null ){
 			try {
 				MsgRepositoryIfc msg_repo = getMsgRepoImpl( repo, conn );
 
