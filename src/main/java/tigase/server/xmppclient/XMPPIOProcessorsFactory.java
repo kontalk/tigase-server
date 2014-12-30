@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import tigase.osgi.ModulesManagerImpl;
 import tigase.server.ConnectionManager;
 
 /**
@@ -39,49 +40,27 @@ public class XMPPIOProcessorsFactory {
 	private static final Logger log = Logger.getLogger(XMPPIOProcessorsFactory.class.getCanonicalName());
 	
 	private static final String IO_PROCESSORS_PROP_KEY = "processors";
-	private static final String IO_PROCESSORS_CLASSES_PROP_KEY = "processors-classes";
 	
-	private static final Map<String,Class<? extends XMPPIOProcessor>> PROCESSORS = new HashMap<String,Class<? extends XMPPIOProcessor>>();
+	private static final Map<String,String> DEF_PROCESSORS = new HashMap<String,String>();
 	
 	static {
-		PROCESSORS.put(StreamManagementIOProcessor.XMLNS, StreamManagementIOProcessor.class);
+		DEF_PROCESSORS.put(StreamManagementIOProcessor.XMLNS, StreamManagementIOProcessor.class.getCanonicalName());
 	}
 	
 	public static XMPPIOProcessor[] updateIOProcessors(ConnectionManager connectionManager,
 			XMPPIOProcessor[] activeProcessors, Map<String,Object> props) {
-
+		
 		if (props.containsKey(IO_PROCESSORS_PROP_KEY)) {
 			String[] processorsArr = (String[]) props.get(IO_PROCESSORS_PROP_KEY);
 			List<XMPPIOProcessor> processors = new ArrayList<XMPPIOProcessor>();
 			
-			if (processorsArr != null) {
-
-				String[] classesArr = (String[]) props.get(IO_PROCESSORS_CLASSES_PROP_KEY);
-				if (classesArr != null && classesArr.length != processorsArr.length) {
-					log.log(Level.WARNING, IO_PROCESSORS_CLASSES_PROP_KEY + " parameter doesn't match " +
-							IO_PROCESSORS_PROP_KEY + " paramater");
-					// ignore the error and go on
-					classesArr = null;
-				}
-
-				for (int i = 0; i < processorsArr.length; i++) {
-					String procId = processorsArr[i];
-					String className = null;
-					if (classesArr != null) {
-						className = classesArr[i];
-						try {
-							PROCESSORS.put(procId, (Class<? extends XMPPIOProcessor>) Class.forName(className));
-						}
-						catch (ClassCastException e) {
-							log.log(Level.WARNING, "Processor class {0} is not a {1}, skipping",
-									new String[] { className, XMPPIOProcessor.class.getSimpleName()});
-						}
-						catch (ClassNotFoundException e) {
-							log.log(Level.WARNING, "Processor class {0} not found, skipping", className);
-						}
-					}
-
-					XMPPIOProcessor proc = findProcessor(activeProcessors, procId, className);
+			if (processorsArr != null) {			
+				for (String procStr : processorsArr) {
+					String[] procStrArr = procStr.split("=");
+					String procId = procStrArr[0];
+					String procClass = procStrArr.length > 1 ? procStrArr[1] : DEF_PROCESSORS.get(procId);
+					
+					XMPPIOProcessor proc = findProcessor(activeProcessors, procId, procClass);
 					
 					if (proc != null) {
 						proc.setConnectionManager(connectionManager);
@@ -119,18 +98,28 @@ public class XMPPIOProcessorsFactory {
 		return results;
 	}
 	
-	public static XMPPIOProcessor findProcessor(XMPPIOProcessor[] activeProcessors, String procId, String className) {
+	public static XMPPIOProcessor findProcessor(XMPPIOProcessor[] activeProcessors, String procId, String procClassName) {
+		Class<? extends XMPPIOProcessor> procCls = null;
+		try {
+			procCls = (Class<? extends XMPPIOProcessor>) ModulesManagerImpl.getInstance().forName(procClassName);
+		} catch (ClassNotFoundException ex) {
+			// we ignore this exception
+		}
+		
 		for (XMPPIOProcessor proc : activeProcessors) {
-			if (procId.equals(proc.getId()) && (className == null || className.equals(proc.getClass().getName()))) {
+			if (procId.equals(proc.getId()) && proc.getClass().equals(procCls)) {
 				return proc;
 			}
 		}
 		
 		try {
-			return PROCESSORS.get(procId).newInstance() ;
+			if (log.isLoggable(Level.FINEST)) {
+				log.log(Level.FINEST, "looking for XMPP processors of id = {0} of class {1} and found {2}", 
+						new Object[]{procId, procClassName, procCls != null ? procCls.toString() : "null"});
+			}
+			return procCls.newInstance() ;
 		}
 		catch (Exception ex) {
-			
 			return null;
 		}
 	}
