@@ -277,6 +277,7 @@ public class OfflineMessages
 					 && ( ( pac.getElemCDataStaticStr( tigase.server.Message.MESSAGE_BODY_PATH ) != null )
 								|| ( pac.getElemChildrenStaticStr( MESSAGE_EVENT_PATH ) != null )
 								|| ( pac.getElemChildrenStaticStr( MESSAGE_HEADER_PATH ) != null )
+								|| ( pac.getElement().getChild("request", "urn:xmpp:receipts") != null )
 								|| ( pac.getElement().getChild("received", "urn:xmpp:receipts") != null ) )
 					 && ( ( type == null ) || ( type == StanzaType.normal ) || ( type == StanzaType.chat ) ) )
 				 || ( pac.getElemName().equals( "presence" )
