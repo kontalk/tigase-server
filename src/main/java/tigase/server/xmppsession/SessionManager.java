@@ -2103,6 +2103,8 @@ public class SessionManager
 					handleLocalPacket(packet, conn);
 				}
 			} catch (NoConnectionIdException ex) {
+				// stop right here!
+				stop = true;
 
 				// Ignore, this should not happen at this point, or even at all.
 				log.log(Level.INFO,
