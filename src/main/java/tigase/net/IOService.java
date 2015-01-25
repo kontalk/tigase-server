@@ -182,6 +182,7 @@ public abstract class IOService<RefObject>
 	protected CharBuffer        cb              = CharBuffer.allocate(2048);
 	private final ReentrantLock writeInProgress = new ReentrantLock();
 	private final ReentrantLock readInProgress  = new ReentrantLock();
+	private Certificate peerCertificate;
 	private List<String>        peersJIDsFromCert;
 	private TrustManager[]      x509TrustManagers;
 	private int bufferLimit = 0;
@@ -369,6 +370,7 @@ public abstract class IOService<RefObject>
 				List<String>  xmppJIDs = CertificateUtil.extractXmppAddrs(
 						(X509Certificate) peerCert);
 
+				this.peerCertificate = peerCert;
 				this.peersJIDsFromCert = xmppJIDs;
 			} catch (SSLPeerUnverifiedException e) {
 				this.peersJIDsFromCert = null;
@@ -623,7 +625,14 @@ public abstract class IOService<RefObject>
 		Socket sock = socketIO.getSocketChannel().socket();
 		return sock.getLocalPort();
 	}
-	
+
+	/**
+	 * Returns the peer certificate.
+	 */
+	public Certificate getPeerCertificate() {
+		return peerCertificate;
+	}
+
 	/**
 	 * Method description
 	 *
