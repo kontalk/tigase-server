@@ -28,32 +28,15 @@ import tigase.cluster.api.*;
 import tigase.vhosts.VHostManager;
 import tigase.xmpp.JID;
 
-/**
- *
- * @author Wojciech Kapcia <wojciech.kapcia@tigase.org>
- */
 public class VHostManagerClustered extends VHostManager implements ClusteredComponentIfc {
 
 	private static final Logger log = Logger.getLogger( VHostManagerClustered.class.getName() );
 	private List<JID> connectedNodes = new CopyOnWriteArrayList<>();
 	private String CONNECTED_NODES_VAR = "connectedNodes";
 
-	/**
-	 * Set's the configures the cluster controller object for cluster
-	 * communication and API.
-	 *
-	 * @param cl_controller
-	 */
 	@Override
 	public void setClusterController( ClusterControllerIfc cl_controller ) {}
 
-	/**
-	 * Method is called on cluster node connection event. This is a
-	 * notification to the component that a new cluster node has connected.
-	 *
-	 * @param node
-	 *          is a hostname of a cluster node generating the event.
-	 */
 	@Override
 	public void nodeConnected( String node ) {
 		JID nodeJID = JID.jidInstanceNS( "vhost-man", node, null );
@@ -65,14 +48,6 @@ public class VHostManagerClustered extends VHostManager implements ClusteredComp
 		}
 	}
 
-	/**
-	 * Method is called on cluster node disconnection event. This is a
-	 * notification to the component that there was network connection lost to one
-	 * of the cluster nodes.
-	 *
-	 * @param node
-	 *          is a hostname of a cluster node generating the event.
-	 */
 	@Override
 	public void nodeDisconnected( String node ) {
 		JID nodeJID = JID.jidInstanceNS( "vhost-man", node, null);
@@ -80,13 +55,6 @@ public class VHostManagerClustered extends VHostManager implements ClusteredComp
 		connectedNodes.remove( nodeJID );
 	}
 
-
-	/**
-	 * Initialize a mapping of key/value pairs which can be used in scripts
-	 * loaded by the server
-	 *
-	 * @param binds A mapping of key/value pairs, all of whose keys are Strings.
-	 */
 	@Override
 	public void initBindings( Bindings binds ) {
 		super.initBindings( binds );

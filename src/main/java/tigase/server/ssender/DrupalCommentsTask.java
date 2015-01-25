@@ -58,7 +58,7 @@ import java.util.logging.Logger;
  * Then it can sends this to one selected JID. Thus it should be used toghether
  * with StanzaReceiver task which can distribute this informatin to all interested
  * (subscribed) users.
- * <p>
+ * <br>
  * You have to specify destination JID where comments have to be sent.
  * It is not very useful to
  * send post to just one person so to ditribute forum posts to biger number of
@@ -66,10 +66,9 @@ import java.util.logging.Logger;
  * can distribute it to all interested users.
  * Sample connection string:
  * <pre>jdbc:mysql://localhost/tigasedb?user=tigase&amp;password=pass&amp;id=nick@domain.com</pre>
- * </p>
- * <p>
+ * <br>
  * Created: Fri Apr 20 12:10:55 2007
- * </p>
+ * <br>
  * @author <a href="mailto:artur.hefczyc@tigase.org">Artur Hefczyc</a>
  * @version $Rev$
  */
@@ -154,12 +153,6 @@ public class DrupalCommentsTask extends SenderTask {
 
 	//~--- methods --------------------------------------------------------------
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * 
-	 */
 	@Override
 	public boolean cancel() {
 		boolean result = super.cancel();
@@ -178,12 +171,6 @@ public class DrupalCommentsTask extends SenderTask {
 
 	//~--- get methods ----------------------------------------------------------
 
-	/**
-	 * <code>getInitString</code> method returns initialization string passed
-	 * to it in <code>init()</code> method.
-	 *
-	 * @return a <code>String</code> value of initialization string.
-	 */
 	@Override
 	public String getInitString() {
 		return db_conn;
@@ -191,18 +178,6 @@ public class DrupalCommentsTask extends SenderTask {
 
 	//~--- methods --------------------------------------------------------------
 
-	/**
-	 * <code>init</code> method is a task specific initialization rountine.
-	 *
-	 * @param handler a <code>StanzaHandler</code> value is a reference to object
-	 * which handles all stanza retrieved from data source. The handler is
-	 * responsible for delivering stanza to destination address.
-	 * @param initString a <code>String</code> value is an initialization string
-	 * for this task. For example database tasks would expect database connection
-	 * string here, filesystem task would expect directory here.
-	 * @exception IOException if an error occurs during task or data storage
-	 * initialization.
-	 */
 	@Override
 	public void init(StanzaHandler handler, String initString) throws IOException {
 		this.handler = handler;
@@ -224,9 +199,6 @@ public class DrupalCommentsTask extends SenderTask {
 		}
 	}
 
-	/**
-	 * <code>run</code> method is where all task work is done.
-	 */
 	@Override
 	public void run() {
 

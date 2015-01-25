@@ -205,7 +205,7 @@ public class Presence
 	/**
 	 * <code>sendPresenceBroadcast</code> method broadcasts given presence to all
 	 * buddies from roster and to all users to which direct presence was sent.
-	 * Before sending presence method calls {@link  requiresPresenceSending()},
+	 * Before sending presence method calls {@code  requiresPresenceSending()},
 	 * configured to only check local environment status (if enabled) to verify
 	 * whether presence needs to be sent.
 	 *
@@ -306,36 +306,16 @@ public class Presence
 		}      // end of if (buddies == null)
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @return a value of <code>int</code>
-	 */
 	@Override
 	public int concurrentQueuesNo() {
 		return Runtime.getRuntime().availableProcessors() * 2;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @return a value of <code>String</code>
-	 */
 	@Override
 	public String id() {
 		return ID;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param settings is a <code>Map<String,Object></code>
-	 *
-	 * @throws TigaseDBException
-	 */
 	@Override
 	public void init(Map<String, Object> settings) throws TigaseDBException {
 
@@ -399,10 +379,13 @@ public class Presence
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * <br><br>
+	 *
 	 * Performs processing of <em>presence</em> packets and calls different
 	 * methods for particular {@link PresenceType}
 	 *
-	 * {@inheritDoc}
 	 */
 	@SuppressWarnings({ "unchecked", "fallthrough" })
 	@Override
@@ -747,7 +730,7 @@ public class Presence
 	/**
 	 * <code>sendPresenceBroadcast</code> method broadcasts given presence to all
 	 * buddies from roster and to all users to which direct presence was sent.
-	 * Before sending presence method calls {@link  requiresPresenceSending()}
+	 * Before sending presence method calls {@code  requiresPresenceSending()}
 	 * performing, if configured, both system and roster check to verify whether
 	 * presence needs to be sent.
 	 *
@@ -825,14 +808,6 @@ public class Presence
 		}
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param session is a <code>XMPPResourceConnection</code>
-	 * @param results is a <code>Queue<Packet></code>
-	 * @param settings is a <code>Map<String,Object></code>
-	 */
 	@Override
 	public void stopped(XMPPResourceConnection session, Queue<Packet> results, Map<String,
 			Object> settings) {
@@ -871,23 +846,11 @@ public class Presence
 		}
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @return a value of <code>String[][]</code>
-	 */
 	@Override
 	public String[][] supElementNamePaths() {
 		return ELEMENTS;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @return a value of <code>String[]</code>
-	 */
 	@Override
 	public String[] supNamespaces() {
 		return XMLNSS;
@@ -1041,12 +1004,6 @@ public class Presence
 
 	//~--- get methods ----------------------------------------------------------
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param list is a <code>StatisticsList</code>
-	 */
 	@Override
 	public void getStatistics(StatisticsList list) {
 		super.getStatistics(list);

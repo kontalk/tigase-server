@@ -202,7 +202,6 @@ public class StatisticsCollector
 
 					item.addAttribute("name", record.getComponent() + "/" + record
 							.getDescription());
-					item.addAttribute("units", record.getUnit());
 					item.addAttribute("value", record.getValue());
 					query.addChild(item);
 				}    // end of for ()
@@ -239,6 +238,8 @@ public class StatisticsCollector
 
 			String tmp_val = Command.getFieldValue(iqc, "Stats level");
 
+			// copying default value of stats level to local variable to not override default value
+			Level statsLevel = this.statsLevel;
 			if (tmp_val != null) {
 				statsLevel = Level.parse(tmp_val);
 				if (log.isLoggable(Level.FINEST)) {
@@ -274,17 +275,11 @@ public class StatisticsCollector
 
 			Packet result = iqc.commandResult(Command.DataType.form);
 
-			if (list != null) {
-				for (StatRecord rec : list) {
-					if (rec.getType() == StatisticType.LIST) {
-						Command.addFieldMultiValue(result, XMLUtils.escape(rec.getComponent() + "/" +
-								rec.getDescription()), rec.getListValue());
-					} else {
-						Command.addFieldValue(result, XMLUtils.escape(rec.getComponent() + "/" + rec
-								.getDescription()), XMLUtils.escape(rec.getValue()));
-					}
-				}
+			for (StatRecord rec : list) {
+				Command.addFieldValue(result, XMLUtils.escape(rec.getComponent() + "/" + rec
+						.getDescription()), XMLUtils.escape(rec.getValue()));
 			}
+
 			Command.addFieldValue(result, "Stats level", statsLevel.getName(), "Stats level",
 					new String[] { Level.INFO.getName(),
 					Level.FINE.getName(), Level.FINER.getName(), Level.FINEST.getName() },
@@ -376,7 +371,7 @@ public class StatisticsCollector
 	 *
 	 *
 	 *
-	 * @return a value of <code>List<String></code>
+	 * @return a value of {@code List<String>}
 	 */
 	public List<String> getComponentsNames() {
 		return new ArrayList<String>(components.keySet());

@@ -27,7 +27,6 @@ package tigase.server.xmppclient;
 //~--- non-JDK imports --------------------------------------------------------
 
 import java.io.IOException;
-import java.security.cert.CertificateEncodingException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,10 +37,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.Deflater;
-
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-
 import tigase.conf.ConfigurationException;
 import tigase.net.IOService;
 import tigase.net.SocketThread;
@@ -52,7 +49,6 @@ import tigase.server.Message;
 import tigase.server.Packet;
 import tigase.server.Presence;
 import tigase.server.ReceiverTimeoutHandler;
-import tigase.util.Base64;
 import tigase.util.DNSResolver;
 import tigase.util.RoutingsContainer;
 import tigase.util.TigaseStringprepException;
@@ -122,16 +118,6 @@ public class ClientConnectionManager
 
 	//~--- methods --------------------------------------------------------------
 
-	/**
-	 * This method can be overwritten in extending classes to get a different
-	 * packets distribution to different threads. For PubSub, probably better
-	 * packets distribution to different threads would be based on the sender
-	 * address rather then destination address.
-	 *
-	 * @param packet
-	 *
-	 * @return a value of <code>int</code>
-	 */
 	@Override
 	public int hashCodeForPacket(Packet packet) {
 		if ((packet.getPacketFrom() != null) && getComponentId().getBareJID().equals(packet
@@ -142,11 +128,6 @@ public class ClientConnectionManager
 		}
 	}
 
-	/**
-	 * Method description
-	 *
-	 * @param packet
-	 */
 	@Override
 	public void processPacket(final Packet packet) {
 		if (log.isLoggable(Level.FINEST)) {
@@ -219,13 +200,6 @@ public class ClientConnectionManager
 		}    // end of else
 	}
 
-	/**
-	 * Method description
-	 *
-	 * @param serv
-	 *
-	 * @return a value of <code>Queue<Packet></code>
-	 */
 	@Override
 	public Queue<Packet> processSocketData(XMPPIOService<Object> serv) {
 
@@ -260,7 +234,7 @@ public class ClientConnectionManager
 							id });
 				}
 			}
-
+			
 			// If client is sending packet with 'from' attribute set then packets
 			// are being duplicated in clustered environment, so best it would be
 			// to remove 'from' attribute as it will be set later during processing
@@ -294,12 +268,6 @@ public class ClientConnectionManager
 		return null;
 	}
 
-	/**
-	 * Processes undelivered packets
-	 * @param packet
-	 * @param errorMessage
-	 * @return true - if packet was processed
-	 */
 	@Override
 	public boolean processUndeliveredPacket(Packet packet, String errorMessage) {
 		try {
@@ -335,20 +303,9 @@ public class ClientConnectionManager
 		return true;
 	}
 
-	/**
-	 * Method description
-	 *
-	 * @param port_props
-	 */
 	@Override
 	public void reconnectionFailed(Map<String, Object> port_props) {}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param service
-	 */
 	@Override
 	public void serviceStarted(XMPPIOService<Object> service) {
 		super.serviceStarted(service);
@@ -360,13 +317,6 @@ public class ClientConnectionManager
 		service.setProcessors(processors);
 	}
 
-	/**
-	 * Method description
-	 *
-	 * @param service
-	 *
-	 * @return a value of <code>boolean</code>
-	 */
 	@Override
 	public boolean serviceStopped(XMPPIOService<Object> service) {
 		boolean result = super.serviceStopped(service);
@@ -384,9 +334,6 @@ public class ClientConnectionManager
 		return result;
 	}
 
-	/**
-	 * Method description
-	 */
 	@Override
 	public void start() {
 		super.start();
@@ -394,21 +341,12 @@ public class ClientConnectionManager
 		ipMonitor.start();
 	}
 
-	/**
-	 * Method description
-	 */
 	@Override
 	public void stop() {
 		super.stop();
 		ipMonitor.stopThread();
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param serv
-	 */
 	@Override
 	public void tlsHandshakeCompleted(XMPPIOService<Object> serv) {
 		if ((serv.getPeersJIDsFromCert() != null) && clientTrustManagerFactory.isActive()) {
@@ -420,24 +358,10 @@ public class ClientConnectionManager
 			Command.addFieldValue(clientAuthCommand, "session-id", id);
 			Command.addFieldValue(clientAuthCommand, "peer-certificate", "true");
 			Command.addFieldMultiValue(clientAuthCommand, "jids", serv.getPeersJIDsFromCert());
-
-			try {
-				final String encodedCert = Base64.encode(serv.getPeerCertificate().getEncoded());
-				Command.addFieldValue(clientAuthCommand, "peer-certificate-data", encodedCert);
-			}
-			catch (CertificateEncodingException e) {
-				log.log(Level.WARNING, "unable to load peer certificate", e);
-			}
-
 			addOutPacket(clientAuthCommand);
 		}
 	}
 
-	/**
-	 * Method description
-	 *
-	 * @param serv
-	 */
 	@Override
 	public void xmppStreamClosed(XMPPIOService<Object> serv) {
 		if (log.isLoggable(Level.FINER)) {
@@ -479,14 +403,6 @@ public class ClientConnectionManager
 		}
 	}
 
-	/**
-	 * Method description
-	 *
-	 * @param serv
-	 * @param attribs
-	 *
-	 * @return a value of <code>String</code>
-	 */
 	@Override
 	public String xmppStreamOpened(XMPPIOService<Object> serv, Map<String,
 			String> attribs) {
@@ -532,7 +448,7 @@ public class ClientConnectionManager
 							see_other_host, serv });
 				}
 
-				return prepareSeeOtherHost(serv, see_other_host);
+				return prepareSeeOtherHost(serv, fromJID.getDomain(), see_other_host);
 			}
 		}    // of if (from != null )
 
@@ -584,13 +500,6 @@ public class ClientConnectionManager
 
 	//~--- get methods ----------------------------------------------------------
 
-	/**
-	 * Method description
-	 *
-	 * @param params
-	 *
-	 * @return a value of <code>Map<String,Object></code>
-	 */
 	@Override
 	public Map<String, Object> getDefaults(Map<String, Object> params) {
 		Map<String, Object> props = super.getDefaults(params);
@@ -628,34 +537,20 @@ public class ClientConnectionManager
 		return props;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @return a value of <code>String</code>
-	 */
 	@Override
 	public String getDiscoCategoryType() {
 		return "c2s";
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @return a value of <code>String</code>
-	 */
 	@Override
 	public String getDiscoDescription() {
 		return "Client connection manager";
 	}
 
 	/**
-	 * Method description
+	 * Method retrieves object of particular class implementing {@link SeeOtherHostIfc}
 	 *
-	 *
-	 * @param see_other_host_class
-	 *
+	 * @param see_other_host_class class of {@link SeeOtherHostIfc} implementation
 	 *
 	 * @return a value of <code>SeeOtherHostIfc</code>
 	 */
@@ -682,12 +577,6 @@ public class ClientConnectionManager
 
 	//~--- set methods ----------------------------------------------------------
 
-	/**
-	 * Method description
-	 *
-	 * @param props
-	 * @throws tigase.conf.ConfigurationException
-	 */
 	@Override
 	public void setProperties(Map<String, Object> props) throws ConfigurationException {
 		super.setProperties(props);
@@ -820,7 +709,7 @@ public class ClientConnectionManager
 				elem_features.addChildren(Command.getData(iqc));
 
 				preprocessStreamFeatures(serv, elem_features);
-
+				
 				Packet result = Packet.packetInstance(elem_features, null, null);
 
 				// Is it actually needed?? Yes, it is needed, IOService is
@@ -856,8 +745,8 @@ public class ClientConnectionManager
 										see_other_host, serv });
 							}
 
-							String redirectMessage = prepareSeeOtherHost(serv, see_other_host);
-
+							String redirectMessage = prepareSeeOtherHost(serv, fromJID.getDomain(), see_other_host);
+						
 							try {
 								SocketThread.removeSocketService(serv);
 								serv.writeRawData(redirectMessage);
@@ -1066,93 +955,57 @@ public class ClientConnectionManager
 
 	//~--- get methods ----------------------------------------------------------
 
-	/**
-	 * Method description
-	 *
-	 *
-	 *
-	 * @return a value of <code>int[]</code>
-	 */
 	@Override
 	protected int[] getDefPlainPorts() {
 		return new int[] { 5222 };
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 *
-	 * @return a value of <code>int[]</code>
-	 */
 	@Override
 	protected int[] getDefSSLPorts() {
 		return new int[] { 5223 };
 	}
 
 	/**
-	 * Method <code>getMaxInactiveTime</code> returns max keep-alive time for
-	 * inactive connection. Let's assume user should send something at least
-	 * once every 24 hours....
+	 * {@inheritDoc}
 	 *
-	 * @return a <code>long</code> value
+	 * <br><br>
+	 *
+	 * Let's assume user should send something at least once every 24 hours....
 	 */
 	@Override
 	protected long getMaxInactiveTime() {
 		return 24 * HOUR;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param def
-	 *
-	 *
-	 * @return a value of <code>Integer</code>
-	 */
 	@Override
 	protected Integer getMaxQueueSize(int def) {
 		return def * 10;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 *
-	 * @return a value of <code>XMPPIOService<Object></code>
-	 */
 	@Override
 	protected XMPPIOService<Object> getXMPPIOServiceInstance() {
 		return new XMPPIOService<Object>();
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @return a value of <code>boolean</code>
-	 */
 	@Override
 	protected boolean isTlsWantClientAuthEnabled() {
 		return clientTrustManagerFactory.isSaslExternalAvailable();
 	}
-
+	
 	protected String prepareStreamClose(XMPPIOService<Object> serv) {
 		return "</stream:stream>";
 	}
-
+	
 	protected String prepareStreamOpen(XMPPIOService<Object> serv, String id, String hostname) {
 		return "<?xml version='1.0'?><stream:stream" + " xmlns='" +
 					XMLNS + "'" + " xmlns:stream='http://etherx.jabber.org/streams'" + " from='" +
 					hostname + "'" + " id='" + id + "'" + " version='1.0' xml:lang='en'>";
 	}
-
+	
 	protected String prepareStreamError(XMPPIOService<Object> serv, List<Element> err_el) {
 		return "<stream:error>" + err_el.get(0).toString() + "</stream:error>";
 	}
-
+	
 	protected String prepareStreamError(XMPPIOService<Object> serv, String errorName, String hostname) {
 		return "<?xml version='1.0'?><stream:stream" + " xmlns='" + XMLNS + "'"
 				+ " xmlns:stream='http://etherx.jabber.org/streams'"
@@ -1161,20 +1014,20 @@ public class ClientConnectionManager
 				+ "<" + errorName + " xmlns='urn:ietf:params:xml:ns:xmpp-streams'/>"
 				+ "</stream:error>" + "</stream:stream>";
 	}
-
-	protected String prepareSeeOtherHost(XMPPIOService<Object> serv, BareJID see_other_host) {
+	
+	protected String prepareSeeOtherHost(XMPPIOService<Object> serv, String hostname, BareJID see_other_host) {
 		return "<stream:stream" + " xmlns='" + XMLNS + "'"
 				+ " xmlns:stream='http://etherx.jabber.org/streams'"
-				+ " id='tigase-error-tigase'" + " from='" + getDefVHostItem() + "'"
+				+ " id='tigase-error-tigase'" + " from='" + (hostname != null ? hostname : getDefVHostItem()) + "'"
 				+ " version='1.0' xml:lang='en'>" + see_other_host_strategy.getStreamError(
 						"urn:ietf:params:xml:ns:xmpp-streams", see_other_host).toString()
-				+ "</stream:stream>";
-	}
-
+				+ "</stream:stream>";	
+	}	
+	
 	protected void preprocessStreamFeatures(XMPPIOService<Object> serv, Element elem_features) {
-
+		
 	}
-
+	
 	private List<Element> getFeatures(XMPPIOService service) {
 		List<Element> results = new LinkedList<Element>();
 
@@ -1205,12 +1058,6 @@ public class ClientConnectionManager
 
 	private class StartedHandler
 					implements ReceiverTimeoutHandler {
-		/**
-		 * Method description
-		 *
-		 * @param packet
-		 * @param response
-		 */
 		@Override
 		public void responseReceived(Packet packet, Packet response) {
 
@@ -1219,11 +1066,6 @@ public class ClientConnectionManager
 					StanzaType.get, UUID.randomUUID().toString(), null));
 		}
 
-		/**
-		 * Method description
-		 *
-		 * @param packet
-		 */
 		@Override
 		public void timeOutExpired(Packet packet) {
 
@@ -1248,12 +1090,6 @@ public class ClientConnectionManager
 
 	private class StoppedHandler
 					implements ReceiverTimeoutHandler {
-		/**
-		 * Method description
-		 *
-		 * @param packet
-		 * @param response
-		 */
 		@Override
 		public void responseReceived(Packet packet, Packet response) {
 
@@ -1263,11 +1099,6 @@ public class ClientConnectionManager
 			}
 		}
 
-		/**
-		 * Method description
-		 *
-		 * @param packet
-		 */
 		@Override
 		public void timeOutExpired(Packet packet) {
 
@@ -1279,6 +1110,3 @@ public class ClientConnectionManager
 		}
 	}
 }
-
-
-//~ Formatted in Tigase Code Convention on 13/09/21

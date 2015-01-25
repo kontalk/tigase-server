@@ -84,7 +84,8 @@ public class ClConSQLRepository
 					+ "  " + PORT_COLUMN + " int,"
 					+ "  " + CPU_USAGE_COLUMN + " double precision unsigned not null,"
 					+ "  " + MEM_USAGE_COLUMN + " double precision unsigned not null,"
-					+ "  primary key(" + HOSTNAME_COLUMN + "))";
+					+ "  primary key(" + HOSTNAME_COLUMN + "))"
+					+ " ENGINE=InnoDB default character set utf8 ROW_FORMAT=DYNAMIC";
 	private static final String CREATE_TABLE_QUERY =
 					"create table " + TABLE_NAME + " ("
 					+ "  " + HOSTNAME_COLUMN + " varchar(512) not null,"
@@ -146,13 +147,6 @@ public class ClConSQLRepository
 	
 	//~--- get methods ----------------------------------------------------------
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param defs
-	 * @param params
-	 */
 	@Override
 	public void getDefaults(Map<String, Object> defs, Map<String, Object> params) {
 		super.getDefaults(defs, params);
@@ -167,14 +161,6 @@ public class ClConSQLRepository
 
 	//~--- methods --------------------------------------------------------------
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param conn_str
-	 * @param params
-	 * @throws tigase.db.DBInitException
-	 */
 	@Override
 	public void initRepository(String conn_str, Map<String, String> params)
 					throws DBInitException {
@@ -211,12 +197,6 @@ public class ClConSQLRepository
 
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param item
-	 */
 	@Override
 	public void storeItem(ClusterRepoItem item) {
 		try {
@@ -250,10 +230,6 @@ public class ClConSQLRepository
 		}
 	}
 
-	/**
-	 * Method description
-	 *
-	 */
 	@Override
 	public void reload() {
 		super.reload();
@@ -287,12 +263,6 @@ public class ClConSQLRepository
 
 	//~--- set methods ----------------------------------------------------------
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param properties
-	 */
 	@Override
 	public void setProperties(Map<String, Object> properties) {
 		super.setProperties(properties);
@@ -300,10 +270,6 @@ public class ClConSQLRepository
 
 	//~--- methods --------------------------------------------------------------
 
-	/**
-	 * Method description
-	 *
-	 */
 	@Override
 	public void store() {
 

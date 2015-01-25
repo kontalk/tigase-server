@@ -36,7 +36,6 @@ import tigase.xml.Element;
 import tigase.xmpp.Authorization;
 import tigase.xmpp.StanzaType;
 import tigase.xmpp.XMPPException;
-import tigase.xmpp.XMPPProcessor;
 import tigase.xmpp.XMPPProcessorIfc;
 import tigase.xmpp.XMPPResourceConnection;
 
@@ -45,7 +44,9 @@ import tigase.xmpp.XMPPResourceConnection;
 import java.util.logging.Logger;
 import java.util.Map;
 import java.util.Queue;
+import tigase.xmpp.impl.annotation.*;
 
+import static tigase.xmpp.impl.SessionBind.*;
 /**
  * Describe class SessionBind here.
  *
@@ -55,47 +56,21 @@ import java.util.Queue;
  * @author <a href="mailto:artur.hefczyc@tigase.org">Artur Hefczyc</a>
  * @version $Rev$
  */
+@Id(XMLNS)
+@Handle(path={ Iq.ELEM_NAME, "session" }, xmlns=XMLNS)
+@StreamFeatures(
+	@StreamFeature(elem="session", xmlns=XMLNS)
+)
+@DiscoFeatures({ XMLNS })
 public class SessionBind
-				extends XMPPProcessor
+				extends AnnotatedXMPPProcessor
 				implements XMPPProcessorIfc {
 	private static final String     SESSION_KEY = "Session-Set";
-	private static final String     XMLNS       = "urn:ietf:params:xml:ns:xmpp-session";
+	protected static final String     XMLNS       = "urn:ietf:params:xml:ns:xmpp-session";
 	private static final Logger     log = Logger.getLogger(SessionBind.class.getName());
-	private static final String     ID          = XMLNS;
-	private static final String[][] ELEMENTS    = {
-		{ Iq.ELEM_NAME, "session" }
-	};
-	private static final String[]   XMLNSS      = { XMLNS };
-	private static final Element[]  FEATURES = { new Element("session", new String[] {
-			"xmlns" }, new String[] { XMLNS }) };
-	private static final Element[] DISCO_FEATURES = { new Element("feature", new String[] {
-			"var" }, new String[] { XMLNS }) };
 
 	//~--- methods --------------------------------------------------------------
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * 
-	 */
-	@Override
-	public String id() {
-		return ID;
-	}
-
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param packet
-	 * @param session
-	 * @param repo
-	 * @param results
-	 * @param settings
-	 *
-	 * @throws XMPPException
-	 */
 	@Override
 	public void process(final Packet packet, final XMPPResourceConnection session,
 			final NonAuthUserRepository repo, final Queue<Packet> results, final Map<String,
@@ -129,59 +104,13 @@ public class SessionBind
 		}    // end of switch (type)
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param session
-	 *
-	 * 
-	 */
-	@Override
-	public Element[] supDiscoFeatures(final XMPPResourceConnection session) {
-		return DISCO_FEATURES;
-	}
-
-	/**
-	 * Method description
-	 *
-	 *
-	 * 
-	 */
-	@Override
-	public String[][] supElementNamePaths() {
-		return ELEMENTS;
-	}
-
-	/**
-	 * Method description
-	 *
-	 *
-	 * 
-	 */
-	@Override
-	public String[] supNamespaces() {
-		return XMLNSS;
-	}
-
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param session
-	 *
-	 * 
-	 */
 	@Override
 	public Element[] supStreamFeatures(final XMPPResourceConnection session) {
 		if ((session != null) && (session.getSessionData(SESSION_KEY) == null) && session
 				.isAuthorized()) {
-			return FEATURES;
+			return super.supStreamFeatures(session);
 		} else {
 			return null;
 		}    // end of if (session.isAuthorized()) else
 	}
 }    // SessionBind
-
-
-//~ Formatted in Tigase Code Convention on 13/03/12

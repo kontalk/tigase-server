@@ -58,12 +58,6 @@ public class WebSocketClientConnectionManager
 		return defs;
 	}
 	
-	/**
-	 * Method description
-	 *
-	 *
-	 * @return a value of <code>String</code>
-	 */
 	@Override
 	public String getDiscoDescription() {
 		return "Websocket connection manager";
@@ -86,39 +80,16 @@ public class WebSocketClientConnectionManager
 		super.setProperties(props);
 	}
 	
-	/**
-	 * Method description
-	 *
-	 *
-	 *
-	 *
-	 * @return a value of <code>int[]</code>
-	 */
 	@Override
 	protected int[] getDefPlainPorts() {
 		return new int[] { 5290 };
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 *
-	 *
-	 * @return a value of <code>int[]</code>
-	 */
 	@Override
 	protected int[] getDefSSLPorts() {
 		return null;
 	}
 
-	/**
-	 * Method returns XMPPIOService instance implementing WebSocketXMPPIOService
-	 *
-	 *
-	 *
-	 * @return a value of <code>XMPPIOService<Object></code>
-	 */
 	@Override
 	protected XMPPIOService<Object> getXMPPIOServiceInstance() {
 		return new WebSocketXMPPIOService<Object>(enabledProtocolVersions);
@@ -162,14 +133,14 @@ public class WebSocketClientConnectionManager
 	}
 	
 	@Override
-	protected String prepareSeeOtherHost(XMPPIOService<Object> serv, BareJID see_other_host) {
+	protected String prepareSeeOtherHost(XMPPIOService<Object> serv, String hostname, BareJID see_other_host) {
 		if (isPreRFC(serv)) {
-			return super.prepareSeeOtherHost(serv, see_other_host);
+			return super.prepareSeeOtherHost(serv, hostname, see_other_host);
 		}		
 		boolean ssl = "ssl".equals(serv.getSessionData().get("socket"));
 		int localPort = serv.getLocalPort();
 		String see_other_uri = (ssl ? "wss://" : "ws://") + see_other_host + ":" + localPort + "/";
-		return "<open" + " xmlns='" + XMLNS_FRAMING + "'" + " from='" + getDefVHostItem() + "'" 
+		return "<open" + " xmlns='" + XMLNS_FRAMING + "'" + " from='" +  (hostname != null ? hostname : getDefVHostItem()) + "'"
 				+ " id='tigase-error-tigase'" + " version='1.0' xml:lang='en' />"
 				+ "<close xmlns='urn:ietf:params:xml:ns:xmpp-framing' see-other-uri='" + see_other_uri + "' />";
 	}	

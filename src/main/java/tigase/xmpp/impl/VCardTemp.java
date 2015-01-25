@@ -47,6 +47,9 @@ import tigase.xmpp.StanzaType;
 import tigase.xmpp.XMPPProcessorAbstract;
 import tigase.xmpp.XMPPResourceConnection;
 
+import tigase.xmpp.impl.annotation.*;
+import static tigase.xmpp.impl.VCardTemp.*;
+
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.logging.Level;
@@ -63,6 +66,14 @@ import java.util.Queue;
  * @author <a href="mailto:artur.hefczyc@tigase.org">Artur Hefczyc</a>
  * @version $Rev$
  */
+@Id(XMLNS)
+@Handles({
+	@Handle(path={ Iq.ELEM_NAME, vCard },xmlns=XMLNS),
+	@Handle(path={ Iq.ELEM_NAME, VCARD },xmlns=XMLNS)
+})
+@DiscoFeatures({
+	XMLNS
+})
 public class VCardTemp
 				extends XMPPProcessorAbstract {
 	/** Field description */
@@ -75,48 +86,12 @@ public class VCardTemp
 
 	// VCARD element is added to support old vCard protocol where element
 	// name was all upper cases. Now the plugin should catch both cases.
-	private static final String       vCard    = "vCard";
-	private static final String       VCARD    = "VCARD";
-	private static final String       XMLNS    = "vcard-temp";
-	private static final String       ID       = XMLNS;
-	private static final String[][]   ELEMENTS = {
-		{ Iq.ELEM_NAME, vCard }, { Iq.ELEM_NAME, VCARD }
-	};
-	private static final String[]     XMLNSS   = { XMLNS, XMLNS };
+	protected static final String       vCard    = "vCard";
+	protected static final String       VCARD    = "VCARD";
+	protected static final String       XMLNS    = "vcard-temp";
+	protected static final String       ID       = XMLNS;
 	private static final SimpleParser parser   = SingletonFactory.getParserInstance();
-	private static final Element[]    DISCO_FEATURES = { new Element("feature",
-			new String[] { "var" }, new String[] { XMLNS }) };
-
-	//~--- methods --------------------------------------------------------------
-
-	// ~--- methods --------------------------------------------------------------
-	// Implementation of tigase.xmpp.XMPPImplIfc
-
-	/**
-	 * Method description
-	 *
-	 *
-	 * 
-	 */
-	@Override
-	public String id() {
-		return ID;
-	}
-
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param connectionId
-	 * @param packet
-	 * @param session
-	 * @param repo
-	 * @param results
-	 * @param settings
-	 *
-	 * @throws PacketErrorTypeException
-	 */
-	@Override
+	
 	public void processFromUserOutPacket(JID connectionId, Packet packet,
 			XMPPResourceConnection session, NonAuthUserRepository repo, Queue<Packet> results,
 			Map<String, Object> settings)
@@ -147,19 +122,6 @@ public class VCardTemp
 		}
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param connectionId
-	 * @param packet
-	 * @param session
-	 * @param repo
-	 * @param results
-	 * @param settings
-	 *
-	 * @throws PacketErrorTypeException
-	 */
 	@Override
 	public void processFromUserToServerPacket(JID connectionId, Packet packet,
 			XMPPResourceConnection session, NonAuthUserRepository repo, Queue<Packet> results,
@@ -239,17 +201,6 @@ public class VCardTemp
 		}
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param packet
-	 * @param repo
-	 * @param results
-	 * @param settings
-	 *
-	 * @throws PacketErrorTypeException
-	 */
 	@Override
 	public void processNullSessionPacket(Packet packet, NonAuthUserRepository repo,
 			Queue<Packet> results, Map<String, Object> settings)
@@ -276,16 +227,6 @@ public class VCardTemp
 		}
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param packet
-	 * @param session
-	 * @param repo
-	 * @param results
-	 * @param settings
-	 */
 	@Override
 	public void processServerSessionPacket(Packet packet, XMPPResourceConnection session,
 			NonAuthUserRepository repo, Queue<Packet> results, Map<String, Object> settings) {
@@ -293,18 +234,6 @@ public class VCardTemp
 		// TODO: Hm, the server vCard should be sent here, not yet implemented....
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param packet
-	 * @param session
-	 * @param repo
-	 * @param results
-	 * @param settings
-	 *
-	 * @throws PacketErrorTypeException
-	 */
 	@Override
 	public void processToUserPacket(Packet packet, XMPPResourceConnection session,
 			NonAuthUserRepository repo, Queue<Packet> results, Map<String, Object> settings)
@@ -334,42 +263,7 @@ public class VCardTemp
 			}
 		}
 	}
-
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param session
-	 *
-	 * 
-	 */
-	@Override
-	public Element[] supDiscoFeatures(final XMPPResourceConnection session) {
-		return DISCO_FEATURES;
-	}
-
-	/**
-	 * Method description
-	 *
-	 *
-	 * 
-	 */
-	@Override
-	public String[][] supElementNamePaths() {
-		return ELEMENTS;
-	}
-
-	/**
-	 * Method description
-	 *
-	 *
-	 * 
-	 */
-	@Override
-	public String[] supNamespaces() {
-		return XMLNSS;
-	}
-
+	
 	private Packet parseXMLData(String data, Packet packet) {
 		DomBuilderHandler domHandler = new DomBuilderHandler();
 
@@ -389,10 +283,3 @@ public class VCardTemp
 }    // VCardTemp
 
 
-
-// ~ Formatted in Sun Code Convention
-
-// ~ Formatted by Jindent --- http://www.jindent.com
-
-
-//~ Formatted in Tigase Code Convention on 13/05/24

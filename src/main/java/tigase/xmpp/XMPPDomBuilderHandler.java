@@ -51,7 +51,7 @@ import java.util.logging.Logger;
  *  It also supports creation multiple, sperate document trees if parsed
  *  buffer contains a few <em>XML</em> documents. As a result of work it returns
  *  always <code>Queue</code> containing all found <em>XML</em> trees in the
- *  same order as they were found in network data.<br/>
+ *  same order as they were found in network data.<br>
  *  Document trees created by this <em>DOM</em> builder consist of instances of
  *  <code>Element</code> class or instances of class extending
  *  <code>Element</code> class. To receive trees built with instances of proper
@@ -81,6 +81,7 @@ public class XMPPDomBuilderHandler<RefObject> implements SimpleHandler {
 	private boolean error = false;
 	private ArrayDeque<Element> el_stack = new ArrayDeque<>(10);
 	private ArrayDeque<Element> all_roots = new ArrayDeque<>(1);
+	private boolean streamClosed = false;
 
 	/**
 	 * Protection from the system overload and DOS attack. We want to limit number
@@ -120,12 +121,6 @@ public class XMPPDomBuilderHandler<RefObject> implements SimpleHandler {
 
 	//~--- methods --------------------------------------------------------------
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param cdata
-	 */
 	@Override
 	public void elementCData(StringBuilder cdata) {
 		if (log.isLoggable(Level.FINEST)) {
@@ -138,12 +133,6 @@ public class XMPPDomBuilderHandler<RefObject> implements SimpleHandler {
 		}
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param name
-	 */
 	@Override
 	public void endElement(StringBuilder name) {
 		if (log.isLoggable(Level.FINEST)) {
@@ -153,8 +142,10 @@ public class XMPPDomBuilderHandler<RefObject> implements SimpleHandler {
 		String tmp_name = name.toString();
 
 		if (tmp_name.equals(ELEM_STREAM_STREAM)) {
-			service.xmppStreamClosed();
-
+			// we should not call xmppStreamClosed() as we still may have received 
+			// some packets which may not be processed correctly if we close stream now!
+			//service.xmppStreamClosed();
+			streamClosed = true;
 			return;
 		}    // end of if (tmp_name.equals(ELEM_STREAM_STREAM))
 
@@ -176,12 +167,6 @@ public class XMPPDomBuilderHandler<RefObject> implements SimpleHandler {
 		}    // end of if (el_stack.isEmpty()) else
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param errorMessage
-	 */
 	@Override
 	public void error(String errorMessage) {
 		log.warning("XML content parse error.");
@@ -207,12 +192,10 @@ public class XMPPDomBuilderHandler<RefObject> implements SimpleHandler {
 
 	//~--- methods --------------------------------------------------------------
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param other
-	 */
+	public boolean isStreamClosed() {
+		return streamClosed;
+	}
+	
 	@Override
 	public void otherXML(StringBuilder other) {
 		if (log.isLoggable(Level.FINEST)) {
@@ -232,23 +215,11 @@ public class XMPPDomBuilderHandler<RefObject> implements SimpleHandler {
 		return error;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * 
-	 */
 	@Override
 	public Object restoreParserState() {
 		return parserState;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param state
-	 */
 	@Override
 	public void saveParserState(Object state) {
 		parserState = state;
@@ -258,14 +229,6 @@ public class XMPPDomBuilderHandler<RefObject> implements SimpleHandler {
 		elements_number_limit = limit;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param name
-	 * @param attr_names
-	 * @param attr_values
-	 */
 	@Override
 	public void startElement(StringBuilder name, StringBuilder[] attr_names,
 			StringBuilder[] attr_values) {
@@ -301,6 +264,7 @@ public class XMPPDomBuilderHandler<RefObject> implements SimpleHandler {
 		String tmp_name = name.toString();
 
 		if (tmp_name.equals(ELEM_STREAM_STREAM)) {
+			streamClosed = false;
 			Map<String, String> attribs = new HashMap<String, String>();
 
 			if (attr_names != null) {

@@ -133,14 +133,12 @@ public class OfflineMessages
 	}
 	
 	/**
-	 * OfflineMessages postprocessor simply calls {@code savePacketForOffLineUser}
-	 * method to store packet to offline repository.
-	 * <p>
-	 *
 	 * {@inheritDoc}
 	 *
-	 * @param conn
-	 * @param queue
+	 * <br><br>
+	 *
+	 * OfflineMessages postprocessor simply calls {@code savePacketForOffLineUser}
+	 * method to store packet to offline repository.
 	 */
 	@Override
 	public void postProcess( final Packet packet, final XMPPResourceConnection conn,
@@ -162,15 +160,13 @@ public class OfflineMessages
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * <br><br>
+	 *
 	 * {@code OfflineMessages} processor is triggered by {@code <presence>}
 	 * stanza. Upon receiving it plugin tries to load messages from repository
 	 * and, if the result is not empty, sends them to the user
-	 *
-	 * {@inheritDoc}
-	 *
-	 *
-	 * @param conn
-	 * @throws NotAuthorizedException
 	 */
 	@Override
 	public void process( final Packet packet, final XMPPResourceConnection conn,
@@ -246,14 +242,16 @@ public class OfflineMessages
 	/**
 	 * Method stores messages to offline repository with the following rules
 	 * applied, i.e. saves only:
+	 * <ul>
 	 * <li> message stanza with either nonempty {@code <body>}, {@code <event>} or
-	 * {@code <header>} child element and only messages of type normal, chat.
+	 * {@code <header>} child element and only messages of type normal, chat.</li>
 	 * <li> presence stanza of type subscribe, subscribed, unsubscribe and
-	 * unsubscribed.
-	 * <p>
+	 * unsubscribed.</li>
+	 * </ul>
+	 * <br>
 	 * Processed messages are stamped with the {@code delay} element and
 	 * appropriate timestamp.
-	 * <p>
+	 * <br>
 	 *
 	 *
 	 * @param pac  a {@link Packet} object containing packet that should be

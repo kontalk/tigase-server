@@ -47,12 +47,12 @@ import java.util.Queue;
 
 /**
  * Variant of the <code>Message</code> forwarder class. This implementation forwards
- * messages to all connected resources. <p/>
+ * messages to all connected resources. <br>
  * When a message <strong>'from'</strong> the user is being processed, the plugin forwards
  * the message to the destination address and also sends the message to all other connected
- * resources.<br/>
+ * resources.<br>
  * When a message <strong>'to'</strong> the user is being processed, the plugin forwards
- * the message to all connected resources.<p/>
+ * the message to all connected resources.<br>
  * The idea behind this implementation is to keep all connected resources synchronized with
  * a complete chat content. User should be able to switch between connections and continue
  * the chat.
@@ -77,29 +77,11 @@ public class MessageAll
 
 	//~--- methods --------------------------------------------------------------
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * 
-	 */
 	@Override
 	public String id() {
 		return ID;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param packet
-	 * @param session
-	 * @param repo
-	 * @param results
-	 * @param settings
-	 *
-	 * @throws XMPPException
-	 */
 	@Override
 	public void process(Packet packet, XMPPResourceConnection session,
 			NonAuthUserRepository repo, Queue<Packet> results, Map<String, Object> settings)
@@ -196,28 +178,13 @@ public class MessageAll
 		}    // end of try-catch
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * 
-	 */
 	@Override
 	public String[][] supElementNamePaths() {
 		return ELEMENTS;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * 
-	 */
 	@Override
 	public String[] supNamespaces() {
 		return XMLNSS;
 	}
 }
-
-
-//~ Formatted in Tigase Code Convention on 13/03/12

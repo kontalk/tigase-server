@@ -71,7 +71,7 @@ import tigase.xmpp.JID;
  * methods can be called simultaneously like
  * <code>stop()</code>,
  * <code>getProtocol()</code> or
- * <code>isConnected()</code>. <br/> It is recommended that developers extend
+ * <code>isConnected()</code>. <br> It is recommended that developers extend
  * <code>AbsractServerService</code> rather then implement
  * <code>ServerService</code> interface directly. <p> If you directly implement
  * <code>ServerService</code> interface you must take care about
@@ -182,7 +182,6 @@ public abstract class IOService<RefObject>
 	protected CharBuffer        cb              = CharBuffer.allocate(2048);
 	private final ReentrantLock writeInProgress = new ReentrantLock();
 	private final ReentrantLock readInProgress  = new ReentrantLock();
-	private Certificate         peerCertificate;
 	private List<String>        peersJIDsFromCert;
 	private TrustManager[]      x509TrustManagers;
 	private int bufferLimit = 0;
@@ -238,14 +237,6 @@ public abstract class IOService<RefObject>
 		setLastTransferTime();
 	}
 
-	/**
-	 * Method
-	 * <code>run</code> is used to perform
-	 *
-	 *
-	 *
-	 * @throws IOException
-	 */
 	@Override
 	public IOService<?> call() throws IOException {
 		writeData(null);
@@ -279,7 +270,7 @@ public abstract class IOService<RefObject>
 				? this
 				: null;
 	}
-
+	
 	@Override
 	public boolean checkBufferLimit(int bufferSize) {
 		return (bufferLimit == 0 || bufferSize <= bufferLimit);
@@ -289,7 +280,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	public ConnectionType connectionType() {
 		return this.connectionType;
@@ -341,12 +332,6 @@ public abstract class IOService<RefObject>
 		}
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param wrapper
-	 */
 	@Override
 	public void handshakeCompleted(TLSWrapper wrapper) {
 		String reqCertDomain = (String) getSessionData().get(CERT_REQUIRED_DOMAIN);
@@ -384,7 +369,6 @@ public abstract class IOService<RefObject>
 				List<String>  xmppJIDs = CertificateUtil.extractXmppAddrs(
 						(X509Certificate) peerCert);
 
-				this.peerCertificate = peerCert;
 				this.peersJIDsFromCert = xmppJIDs;
 			} catch (SSLPeerUnverifiedException e) {
 				this.peersJIDsFromCert = null;
@@ -421,7 +405,7 @@ public abstract class IOService<RefObject>
 		int port = 0;
 		if (clientMode) {
 			tls_hostname = (String) this.getSessionData().get("remote-host");
-			if (tls_hostname == null)
+			if (tls_hostname == null) 
 				tls_hostname = (String) this.getSessionData().get("remote-hostname");
 			port = ((InetSocketAddress) socketIO.getSocketChannel().getRemoteAddress()).getPort();
 		}
@@ -465,11 +449,11 @@ public abstract class IOService<RefObject>
 				port = ((InetSocketAddress) socketIO.getSocketChannel().getRemoteAddress()).getPort();
 				if (tls_hostname == null) {
 					tls_hostname = (String) this.getSessionData().get("remote-host");
-					if (tls_hostname == null)
+					if (tls_hostname == null) 
 						tls_hostname = (String) this.getSessionData().get("remote-hostname");
 				}
 			}
-
+			
 			if (log.isLoggable(Level.FINEST)) {
 				log.log(Level.FINEST, "{0}, Starting TLS for domain: {1}", new Object[] { this,
 						tls_hostname });
@@ -520,12 +504,6 @@ public abstract class IOService<RefObject>
 		}
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 *
-	 */
 	@Override
 	public String toString() {
 		return getConnectionId() + ", type: " + connectionType + ", Socket: " + socketIO;
@@ -535,7 +513,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	public boolean waitingToRead() {
 		return true;
@@ -545,7 +523,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	public boolean waitingToSend() {
 		return socketIO.waitingToSend();
@@ -555,7 +533,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	public int waitingToSendSize() {
 		return socketIO.waitingToSendSize();
@@ -569,7 +547,7 @@ public abstract class IOService<RefObject>
 	 *
 	 * @param reset
 	 *
-	 *
+	 * 
 	 */
 	public long getBuffOverflow(boolean reset) {
 		return socketIO.getBuffOverflow(reset);
@@ -581,7 +559,7 @@ public abstract class IOService<RefObject>
 	 *
 	 * @param reset
 	 *
-	 *
+	 * 
 	 */
 	public long getBytesReceived(boolean reset) {
 		return socketIO.getBytesReceived(reset);
@@ -593,7 +571,7 @@ public abstract class IOService<RefObject>
 	 *
 	 * @param reset
 	 *
-	 *
+	 * 
 	 */
 	public long getBytesSent(boolean reset) {
 		return socketIO.getBytesSent(reset);
@@ -610,7 +588,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	public JID getDataReceiver() {
 		return this.dataReceiver;
@@ -620,7 +598,7 @@ public abstract class IOService<RefObject>
 	 * This method returns the time of last transfer in any direction
 	 * through this service. It is used to help detect dead connections.
 	 *
-	 *
+	 * 
 	 */
 	public long getLastTransferTime() {
 		return lastTransferTime;
@@ -630,7 +608,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	public String getLocalAddress() {
 		return local_address;
@@ -638,29 +616,19 @@ public abstract class IOService<RefObject>
 
 	/**
 	 * Method returns local port of opened socket
-	 *
-	 * @return
+	 * 
+	 * @return 
 	 */
 	public int getLocalPort() {
 		Socket sock = socketIO.getSocketChannel().socket();
 		return sock.getLocalPort();
 	}
-
-	/**
-	 * Returns the peer certificate object, if any.
-	 *
-	 * @return the certificate object, null if not available or the connection
-	 * is not encrypted.
-	 */
-	public Certificate getPeerCertificate() {
-		return peerCertificate;
-	}
-
+	
 	/**
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	public List<String> getPeersJIDsFromCert() {
 		return peersJIDsFromCert;
@@ -670,7 +638,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	public long[] getReadCounters() {
 		return rdData;
@@ -680,7 +648,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	public RefObject getRefObject() {
 		return refObject;
@@ -700,7 +668,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	public ConcurrentMap<String, Object> getSessionData() {
 		return sessionData;
@@ -734,7 +702,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	public long getTotalBuffOverflow() {
 		return socketIO.getTotalBuffOverflow();
@@ -744,7 +712,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	public long getTotalBytesReceived() {
 		return socketIO.getTotalBytesReceived();
@@ -754,7 +722,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	public long getTotalBytesSent() {
 		return socketIO.getTotalBytesSent();
@@ -764,7 +732,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	public String getUniqueId() {
 		return id;
@@ -774,7 +742,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	public long[] getWriteCounters() {
 		return wrData;
@@ -784,7 +752,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	public TrustManager[] getX509TrustManagers() {
 		return x509TrustManagers;
@@ -824,7 +792,7 @@ public abstract class IOService<RefObject>
 	public void setBufferLimit(int bufferLimit) {
 		this.bufferLimit = bufferLimit;
 	}
-
+	
 	/**
 	 * @param connectionId the connectionId to set
 	 */
@@ -902,7 +870,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	protected ByteOrder byteOrder() {
 		return ByteOrder.BIG_ENDIAN;
@@ -964,7 +932,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 *
 	 * @throws IOException
 	 */
@@ -1218,7 +1186,7 @@ public abstract class IOService<RefObject>
 	 * Method description
 	 *
 	 *
-	 *
+	 * 
 	 */
 	protected abstract int receivedPackets();
 
@@ -1370,7 +1338,7 @@ public abstract class IOService<RefObject>
 	/**
 	 * Method description
 	 *
-	 *
+	 * 
 	 */
 	protected boolean isInputBufferEmpty() {
 		return (socketInput != null) && (socketInput.remaining() == socketInput.capacity());

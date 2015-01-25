@@ -61,7 +61,7 @@ import java.util.Queue;
  *
  *
  * @version 5.0.0, 2010.03.01 at 03:12:30 GMT
- * @author Artur Hefczyc <artur.hefczyc@tigase.org>
+ * @author Artur Hefczyc
  */
 public class PepPlugin
 				extends XMPPProcessorAbstract {
@@ -111,30 +111,11 @@ public class PepPlugin
 
 	//~--- methods --------------------------------------------------------------
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * 
-	 */
 	@Override
 	public String id() {
 		return ID;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param connectionId
-	 * @param packet
-	 * @param session
-	 * @param repo
-	 * @param results
-	 * @param settings
-	 *
-	 * @throws PacketErrorTypeException
-	 */
 	@Override
 	public void processFromUserToServerPacket(JID connectionId, Packet packet,
 			XMPPResourceConnection session, NonAuthUserRepository repo, Queue<Packet> results,
@@ -188,17 +169,6 @@ public class PepPlugin
 		}
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param packet
-	 * @param repo
-	 * @param results
-	 * @param settings
-	 *
-	 * @throws PacketErrorTypeException
-	 */
 	@Override
 	public void processNullSessionPacket(Packet packet, NonAuthUserRepository repo,
 			Queue<Packet> results, Map<String, Object> settings)
@@ -207,18 +177,6 @@ public class PepPlugin
 				"Service not available.", true));
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param packet
-	 * @param session
-	 * @param repo
-	 * @param results
-	 * @param settings
-	 *
-	 * @throws PacketErrorTypeException
-	 */
 	@Override
 	public void processServerSessionPacket(Packet packet, XMPPResourceConnection session,
 			NonAuthUserRepository repo, Queue<Packet> results, Map<String, Object> settings)
@@ -228,36 +186,16 @@ public class PepPlugin
 		// itself yet
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param session
-	 *
-	 * 
-	 */
 	@Override
 	public Element[] supDiscoFeatures(final XMPPResourceConnection session) {
 		return DISCO_FEATURES;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * 
-	 */
 	@Override
 	public String[][] supElementNamePaths() {
 		return ELEMENTS;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * 
-	 */
 	@Override
 	public String[] supNamespaces() {
 		return XMLNSS;

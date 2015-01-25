@@ -155,13 +155,6 @@ public class JavaJMXProxyOpt
 		jmxc.connect();
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param notification is a <code>Notification</code>
-	 * @param handback is a <code>Object</code>
-	 */
 	@Override
 	public void handleNotification(Notification notification, Object handback) {
 		if (notification.getType().equals(JMXConnectionNotification.OPENED)) {
@@ -273,7 +266,7 @@ public class JavaJMXProxyOpt
 	 *
 	 * @param level is a <code>int</code>
 	 *
-	 * @return a value of <code>Map<String,String></code>
+	 * @return a value of {@code Map<String,String>}
 	 */
 	public Map<String, String> getAllStats(int level) {
 		if (tigBean != null) {
@@ -287,7 +280,7 @@ public class JavaJMXProxyOpt
 	 * Method description
 	 *
 	 *
-	 * @return a value of <code>List<String></code>
+	 * @return a value of {@code List<String>}
 	 */
 	public List<String> getComponentsNames() {
 		if (tigBean != null) {
@@ -304,7 +297,7 @@ public class JavaJMXProxyOpt
 	 * @param compName is a <code>String</code>
 	 * @param level is a <code>int</code>
 	 *
-	 * @return a value of <code>Map<String,String></code>
+	 * @return a value of {@code Map<String,String>}
 	 */
 	public Map<String, String> getComponentStats(String compName, int level) {
 		if (tigBean != null) {

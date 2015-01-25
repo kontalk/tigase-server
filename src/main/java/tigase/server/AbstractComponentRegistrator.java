@@ -31,10 +31,10 @@ import tigase.conf.ConfigurationException;
  * from Tigase components or provide these data to components. They normally
  * do not process normall packets and are usually accessed by admins via ad-hoc
  * commands. Good examples of such components are <code>StatisticsCollector</code>
- * or <code>Configurator</code>.<p/>
+ * or <code>Configurator</code>.<br>
  * Extensions of these class can process packets addresses to the component via
  * <code>processPacket(Packet packet, Queue&lt;Packet&gt; results)</code> method.
- * Alternatively scripting API can be used via ad-hoc commands.<p/>
+ * Alternatively scripting API can be used via ad-hoc commands.<br>
  * The class does not have any queues buffering packets or separate threads for
  * packets processing. All packets are processed from <code>MessageRouter</code>
  * threads via <code>processPacket(Packet packet, Queue&lt;Packet&gt; results)</code>
@@ -178,13 +178,6 @@ public abstract class AbstractComponentRegistrator<E extends ServerComponent>
 		return sb.toString();
 	}
 
-	/**
-	 * Method is called when the component is being stopped and potentially removed from
-	 * the system to release all resources associated with the component. After a call to
-	 * this method no further processing or calls to <code>processPacket</code> or any
-	 * ad-hoc commands is expected.
-	 *
-	 */
 	@Override
 	public void release() {}
 }    // AbstractComponentRegistrator

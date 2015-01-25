@@ -91,10 +91,13 @@ public class JabberIqRoster
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * <br><br>
+	 *
 	 * Performs processing of <em>IQ</em> packets with <em>jabber:iq:roster</em>
 	 * xmlns with the regard whether it's roster <em>set</em> or <em>get</em>
 	 * request or possibly dynamic-roster is involved. request.
-	 * <p> {@inheritDoc}
 	 */
 	@Override
 	public void process( Packet packet, XMPPResourceConnection session,
@@ -298,7 +301,7 @@ public class JabberIqRoster
 	 * Method processes roster
 	 * <code>get</code> request related to dynamic roster. Generates output packet
 	 * with data from the DynamicRoster implementation for every
-	 * <em>item<em>element from processed packet or error otherwise.
+	 * <em>item</em>element from processed packet or error otherwise.
 	 *
 	 * @param packet   packet is which being processed.
 	 * @param session  user session which keeps all the user session data and also
@@ -337,7 +340,7 @@ public class JabberIqRoster
 	 * Method processes roster
 	 * <code>set</code> request related to dynamic roster. Sets extra data for
 	 * every
-	 * <em>item<em>element from processed packet with the DynamicRoster
+	 * <em>item</em>element from processed packet with the DynamicRoster
 	 * implementation and generates success packet or, in case of failure
 	 * generates error.
 	 *

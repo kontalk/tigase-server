@@ -712,16 +712,21 @@ public abstract class RepositoryAccess {
 	// ~--- get methods ----------------------------------------------------------
 
 	/**
-	 * Method description
+	 * Returns user JID but without <em>resource</em> part. This is real user ID
+	 * not session ID. To retrieve session ID - full JID refer to
+	 * <code>getJID()</code> method.<br>
+	 * If session has not been authorized yet this method throws
+	 * <code>NotAuthorizedException</code>.
 	 *
+	 * @return a <code>String</code> value of user ID - this is user JID without
+	 *         resource part. To obtain full user JID please refer to
+	 *         <code>getJID</code> method.
 	 *
-	 *
-	 *
-	 *
-	 * @return a value of <code>BareJID</code>
-	 * @throws NotAuthorizedException
+	 * @exception NotAuthorizedException when this session has not been authorized
+	 *                                   yet and some parts of user JID are not
+	 *                                   known yet.
 	 */
-	public abstract BareJID getBareJID() throws NotAuthorizedException;
+public abstract BareJID getBareJID() throws NotAuthorizedException;
 
 	/**
 	 * <code>getData</code> method is a twin sister (brother?) of
@@ -1047,16 +1052,16 @@ public abstract class RepositoryAccess {
 	 * hierarchy of data base. This method is similar to
 	 * <code>setData(String, String)</code> and differs in one additional
 	 * parameter which point to user data base subnode where data must be stored.
-	 * It helps to organize user data in more logical hierarchy.<br/>
+	 * It helps to organize user data in more logical hierarchy.<br>
 	 * User data is kind of tree where you can store data in each tree node. The
 	 * most relevant sample might be structure like typical file system or XML
 	 * like or LDAP data base. The first implementation is actually done as XML
 	 * file to make it easier test application and deploy simple installation
-	 * where there is no more users than 1000.<br/>
+	 * where there is no more users than 1000.<br>
 	 * To find out more about user repository refer to <code>UserRepository</code>
 	 * interface for general info and to <code>XMLRepository</code> for detailed
 	 * explanation regarding XML implementation of user repository.
-	 * <p>
+	 * <br>
 	 * Thus <code>subnode</code> is kind of path to data node. If you specify
 	 * <code>null</code> or empty node data will be stored in root user node. This
 	 * has exactly the same effect as you call
@@ -1074,7 +1079,7 @@ public abstract class RepositoryAccess {
 	 * /just/like/path/to/file
 	 * </pre>
 	 *
-	 * </p>
+	 * <br>
 	 * If given node does not yet exist it will be automaticaly created with all
 	 * nodes in given path so there is no need for developer to perform additional
 	 * action to create node. There is, however method

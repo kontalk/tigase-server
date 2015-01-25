@@ -271,10 +271,6 @@ public class XMPPIOService<RefObject>
 		return waitingPackets;
 	}
 	
-	/**
-	 * Method description
-	 *
-	 */
 	@Override
 	public void forceStop() {
 		boolean stop = false;
@@ -289,11 +285,7 @@ public class XMPPIOService<RefObject>
 		}
 	}
 
-	/**
-	 * Describe <code>processWaitingPackets</code> method here.
-	 *
-	 * @throws IOException
-	 */
+
 	@Override
 	public void processWaitingPackets() throws IOException {
 		Packet packet = null;
@@ -328,10 +320,6 @@ public class XMPPIOService<RefObject>
 		}
 	}
 
-	/**
-	 * Describe <code>stop</code> method here.
-	 *
-	 */
 	@Override
 	public void stop() {
 
@@ -342,14 +330,6 @@ public class XMPPIOService<RefObject>
 		super.stop();
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 *
-	 *
-	 * @return a value of <code>String</code>
-	 */
 	@Override
 	public String toString() {
 		return super.toString() + ", jid: " + jid;
@@ -456,7 +436,7 @@ public class XMPPIOService<RefObject>
 	 *
 	 *
 	 *
-	 * @return a value of <code>Queue<Packet></code>
+	 * @return a value of {@code Queue<Packet>}
 	 */
 	public Queue<Packet> getReceivedPackets() {
 		return receivedPackets;
@@ -502,7 +482,7 @@ public class XMPPIOService<RefObject>
 	 *
 	 *
 	 *
-	 * @return a value of <code>Map<String,Packet></code>
+	 * @return a value of {@code Map<String,Packet>}
 	 */
 	public Map<String, Packet> getWaitingForAct() {
 		for (Packet p : waitingForAck.values()) {
@@ -656,12 +636,6 @@ public class XMPPIOService<RefObject>
 		return "</stream:stream>";
 	}	
 	
-	/**
-	 * Describe <code>processSocketData</code> method here.
-	 *
-	 * @exception IOException
-	 *              if an error occurs
-	 */
 	@Override
 	protected void processSocketData() throws IOException {
 
@@ -753,7 +727,10 @@ public class XMPPIOService<RefObject>
 					log.log(Level.INFO, toString() + ", Incorrect XML data: " + new String(data) +
 							", stopping connection: " + getConnectionId() + ", exception: ", ex);
 					forceStop();
-				}    // end of try-catch
+				} finally {
+					if (domHandler.isStreamClosed())
+						xmppStreamClosed();
+				}  // end of try-catch
 				data = readData();
 			}
 		} else {
@@ -770,14 +747,6 @@ public class XMPPIOService<RefObject>
 		// }
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 *
-	 *
-	 * @return a value of <code>int</code>
-	 */
 	@Override
 	protected int receivedPackets() {
 		return receivedPackets.size();
