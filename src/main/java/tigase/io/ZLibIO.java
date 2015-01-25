@@ -52,6 +52,8 @@ public class ZLibIO implements IOInterface {
 	/** Field description */
 	public static final String ZLIB_CAPS = "zlib-caps";
 
+	private static final int COMPRESSION_BUFFER_SIZE = 2048;
+
 	/**
 	 * Variable <code>log</code> is a class logger.
 	 */
@@ -73,7 +75,7 @@ public class ZLibIO implements IOInterface {
 	 */
 	public ZLibIO(final IOInterface ioi, final int level) {
 		this.io = ioi;
-		zlib = new ZLibWrapper();
+		zlib = new ZLibWrapper(level, COMPRESSION_BUFFER_SIZE);
 	}
 
 	//~--- methods --------------------------------------------------------------
