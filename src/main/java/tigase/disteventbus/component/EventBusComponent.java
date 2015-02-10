@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
+import javax.script.ScriptEngineManager;
+
 import tigase.cluster.api.ClusterControllerIfc;
 import tigase.cluster.api.ClusteredComponentIfc;
 import tigase.component.AbstractComponent;
@@ -18,6 +20,7 @@ import tigase.component.modules.impl.AdHocCommandModule;
 import tigase.component.modules.impl.DiscoveryModule;
 import tigase.component.modules.impl.JabberVersionModule;
 import tigase.component.modules.impl.XmppPingModule;
+import tigase.conf.ConfigurationException;
 import tigase.disteventbus.EventBusFactory;
 import tigase.disteventbus.component.stores.AffiliationStore;
 import tigase.disteventbus.component.stores.SubscriptionStore;
@@ -65,6 +68,12 @@ public class EventBusComponent extends AbstractComponent<EventBusContext> implem
 
 	private final Set<String> connectedNodes = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
+	private final Map<String, ListenerScript> listenersScripts = new ConcurrentHashMap<String, ListenerScript>();
+
+	private ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+
+	private ListenerScriptRegistrar scriptsRegistrar;
+
 	/**
 	 * For cluster nodes.
 	 */
@@ -79,23 +88,12 @@ public class EventBusComponent extends AbstractComponent<EventBusContext> implem
 	}
 
 	@Override
-	public synchronized void everyMinute() {
-		super.everyMinute();
-
-		Date t = new Date();
-		Element event = new Element("Time", new String[] { "xmlns" }, new String[] { COMPONENT_EVENTS_XMLNS });
-		event.addChild(new Element("time", "" + t.getTime()));
-		event.addChild(new Element("timeDesc", t.toString()));
-		event.addChild(new Element("counter", "" + (++counter)));
-
-		context.getEventBus().fire(event);
-
-	}
-
-	@Override
 	public synchronized void everySecond() {
 		super.everySecond();
 
+		Element event = new Element("CurrentTime", new String[] { "xmlns" }, new String[] { "tigase:events" });
+		event.addChild(new Element("time", (new Date()).toString()));
+		context.getEventBus().fire(event);
 	}
 
 	@Override
@@ -182,12 +180,25 @@ public class EventBusComponent extends AbstractComponent<EventBusContext> implem
 
 	@Override
 	public void processPacket(tigase.server.Packet packet) {
-		System.out.println(getComponentId());
 		super.processPacket(packet);
 	}
 
 	@Override
 	public void setClusterController(ClusterControllerIfc cl_controller) {
+	}
+
+	@Override
+	public void setProperties(Map<String, Object> props) throws ConfigurationException {
+		super.setProperties(props);
+
+		scriptsRegistrar = new ListenerScriptRegistrar(listenersScripts, context, scriptEngineManager);
+
+		AdHocCommandModule<?> adHocCommandModule = getModuleProvider().getModule(AdHocCommandModule.ID);
+
+		adHocCommandModule.register(new AddListenerScriptCommand(scriptEngineManager, scriptsRegistrar));
+		adHocCommandModule.register(new RemoveListenerScriptCommand(listenersScripts, scriptsRegistrar));
+
+		scriptsRegistrar.load();
 	}
 
 }
