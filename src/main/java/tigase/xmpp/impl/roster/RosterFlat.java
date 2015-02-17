@@ -49,11 +49,9 @@ import java.util.logging.Logger;
 /**
  * Describe class RosterFlat here.
  *
- *
  * Created: Tue Feb 21 18:05:53 2006
  *
  * @author <a href="mailto:artur.hefczyc@tigase.org">Artur Hefczyc</a>
- * @version $Rev$
  */
 public class RosterFlat
 				extends RosterAbstract {
@@ -71,20 +69,6 @@ public class RosterFlat
 		this.formatter.setTimeZone( TimeZone.getTimeZone("UTC") );
 	}
 
-	//~--- methods --------------------------------------------------------------
-
-	// ~--- methods --------------------------------------------------------------
-
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param relem
-	 * @param roster
-	 * @return 
-	 *
-	 * 
-	 */
 	public static boolean addBuddy(RosterElement relem,
 																 Map<BareJID, RosterElement> roster) {
 		if (roster.size() < maxRosterSize) {
@@ -96,19 +80,6 @@ public class RosterFlat
 		return false;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param buddy
-	 * @param session
-	 *
-	 * 
-	 *
-	 * @return 
-	 * @throws NotAuthorizedException
-	 * @throws TigaseDBException
-	 */
 	public RosterElement addTempBuddy(JID buddy, XMPPResourceConnection session)
 					throws NotAuthorizedException, TigaseDBException {
 		RosterElement relem = getRosterElementInstance(buddy.copyWithoutResource(), null, null, session);
@@ -121,21 +92,9 @@ public class RosterFlat
 							 new Object[] { relem.getJid(), relem.getName(),
 															relem.getRosterItem(), relem.toString() } );
 		}
-
 		return relem;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param roster_str
-	 * @param roster
-	 * @param session
-	 * @return 
-	 *
-	 * 
-	 */
 	public static boolean parseRosterUtil(String roster_str,
 					Map<BareJID, RosterElement> roster, XMPPResourceConnection session) {
 		boolean result               = false;
@@ -237,8 +196,6 @@ public class RosterFlat
 		return (relem != null) && relem.isPersistent();
 	}
 
-	//~--- get methods ----------------------------------------------------------
-
 	@Override
 	public JID[] getBuddies(XMPPResourceConnection session)
 					throws NotAuthorizedException, TigaseDBException {
@@ -274,14 +231,6 @@ public class RosterFlat
 		}
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param relem
-	 *
-	 * 
-	 */
 	public Element getBuddyItem(RosterElement relem) {
 		return relem.getRosterItem();
 	}
@@ -324,17 +273,6 @@ public class RosterFlat
 		// return SubscriptionType.both;
 	}
 
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param buddy
-	 * @param name
-	 * @param groups
-	 * @param session
-	 *
-	 * 
-	 */
 	public RosterElement getRosterElementInstance(JID buddy, String name, String[] groups,
 					XMPPResourceConnection session) {
 		return new RosterElement(buddy.copyWithoutResource(), name, groups, session);
@@ -371,20 +309,6 @@ public class RosterFlat
 		return (relem != null) && relem.isOnline();
 	}
 
-	//~--- methods --------------------------------------------------------------
-
-	// ~--- methods --------------------------------------------------------------
-
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param roster_str
-	 * @param roster
-	 * @param session
-	 *
-	 * 
-	 */
 	public boolean parseRoster(String roster_str, Map<BareJID, RosterElement> roster,
 														 XMPPResourceConnection session) {
 		return parseRosterUtil(roster_str, roster, session);
@@ -418,10 +342,6 @@ public class RosterFlat
 
 		return true;
 	}
-
-	//~--- set methods ----------------------------------------------------------
-
-	// ~--- set methods ----------------------------------------------------------
 
 	@Override
 	public void setBuddyName(XMPPResourceConnection session, JID buddy, String name)
@@ -478,10 +398,6 @@ public class RosterFlat
 		relem.setPresence_sent(sent);
 	}
 
-	//~--- get methods ----------------------------------------------------------
-
-	// ~--- get methods ----------------------------------------------------------
-
 	@Override
 	public RosterElement getRosterElement(XMPPResourceConnection session, JID buddy)
 					throws NotAuthorizedException, TigaseDBException {
@@ -508,19 +424,6 @@ public class RosterFlat
 		return roster;
 	}
 
-	//~--- methods --------------------------------------------------------------
-
-	// ~--- methods --------------------------------------------------------------
-
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param session
-	 *
-	 * @throws NotAuthorizedException
-	 * @throws TigaseDBException
-	 */
 	protected void saveUserRoster(XMPPResourceConnection session)
 					throws NotAuthorizedException, TigaseDBException {
 		Map<BareJID, RosterElement> roster = getUserRoster(session);
@@ -589,20 +492,7 @@ public class RosterFlat
 		return roster;
 	}
 
-	//~--- get methods ----------------------------------------------------------
-
-	/**
-	 * Method description
-	 *
-	 *
-	 * @param session
-	 * @param buddy
-	 *
-	 * 
-	 *
-	 * @throws NotAuthorizedException
-	 * @throws TigaseDBException
-	 */
+	@Override
 	public Element getCustomChild(XMPPResourceConnection session, JID buddy)
 					throws NotAuthorizedException, TigaseDBException {
 		RosterElement rel = getRosterElement(session, buddy);
@@ -619,8 +509,6 @@ public class RosterFlat
 
 		return null;
 	}
-
-	//~--- methods --------------------------------------------------------------
 
 	@Override
 	public void logout(XMPPResourceConnection session) {
@@ -639,15 +527,6 @@ public class RosterFlat
 		}
 	}
 
-	//~--- get methods ----------------------------------------------------------
-
-	/**
-	 * @param session
-	 * 
-	 * @return
-	 * @throws TigaseDBException
-	 * @throws NotAuthorizedException
-	 */
 	public boolean isModified(XMPPResourceConnection session)
 					throws NotAuthorizedException, TigaseDBException {
 		Map<BareJID, RosterElement> roster = getUserRoster(session);
@@ -662,19 +541,13 @@ public class RosterFlat
 		return result;
 	}
 
-	//~--- inner classes --------------------------------------------------------
-
 	private class RosterElemComparator
 					implements Comparator<JID> {
 		private Map<BareJID, RosterElement> roster = null;
 
-		//~--- constructors -------------------------------------------------------
-
 		private RosterElemComparator(Map<BareJID, RosterElement> roster) {
 			this.roster = roster;
 		}
-
-		//~--- methods ------------------------------------------------------------
 
 		@Override
 		public int compare(JID arg0, JID arg1) {
