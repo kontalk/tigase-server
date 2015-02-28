@@ -234,8 +234,9 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 			}
 			return true;
 		}
-		
-		((Counter) service.getSessionData().get(IN_COUNTER_KEY)).inc();
+
+		if (shouldIncrementIncoming(service, packet))
+			((Counter) service.getSessionData().get(IN_COUNTER_KEY)).inc();
 		
 		return false;
 	}
@@ -270,6 +271,10 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 	 */
 	protected boolean shouldRequestAck(XMPPIOService service, OutQueue outQueue) {
 		return outQueue.waitingForAck() >= ack_request_count;
+	}
+
+	protected boolean shouldIncrementIncoming(XMPPIOService service, Packet packet) {
+		return true;
 	}
 	
 	@Override
