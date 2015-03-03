@@ -27,6 +27,7 @@ package tigase.server.xmppclient;
 //~--- non-JDK imports --------------------------------------------------------
 
 import java.io.IOException;
+import java.security.cert.CertificateEncodingException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,6 +50,7 @@ import tigase.server.Message;
 import tigase.server.Packet;
 import tigase.server.Presence;
 import tigase.server.ReceiverTimeoutHandler;
+import tigase.util.Base64;
 import tigase.util.DNSResolver;
 import tigase.util.RoutingsContainer;
 import tigase.util.TigaseStringprepException;
@@ -358,6 +360,15 @@ public class ClientConnectionManager
 			Command.addFieldValue(clientAuthCommand, "session-id", id);
 			Command.addFieldValue(clientAuthCommand, "peer-certificate", "true");
 			Command.addFieldMultiValue(clientAuthCommand, "jids", serv.getPeersJIDsFromCert());
+
+			try {
+				final String encodedCert = Base64.encode(serv.getPeerCertificate().getEncoded());
+				Command.addFieldValue(clientAuthCommand, "peer-certificate-data", encodedCert);
+			}
+			catch (CertificateEncodingException e) {
+				log.log(Level.WARNING, "unable to load peer certificate", e);
+			}
+
 			addOutPacket(clientAuthCommand);
 		}
 	}
