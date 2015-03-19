@@ -292,6 +292,11 @@ public class OfflineMessages
 				stamp = formatter.format( new Date() );
 			}
 
+            // remove any previous delay element
+            Element delay = elem.getChild("delay", "urn:xmpp:delay");
+            if (delay != null)
+                elem.removeChild(delay);
+
 			String from = pac.getStanzaTo().getDomain();
 			Element x = new Element( "delay", "Offline Storage - " + defHost, new String[] {
 				"from",
