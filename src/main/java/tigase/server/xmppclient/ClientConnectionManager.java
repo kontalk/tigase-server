@@ -966,7 +966,11 @@ public class ClientConnectionManager
 
 	//~--- get methods ----------------------------------------------------------
 
-	@Override
+    public ClientTrustManagerFactory getClientTrustManagerFactory() {
+        return clientTrustManagerFactory;
+    }
+
+    @Override
 	protected int[] getDefPlainPorts() {
 		return new int[] { 5222 };
 	}

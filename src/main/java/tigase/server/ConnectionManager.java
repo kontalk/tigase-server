@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.net.ssl.TrustManager;
 import javax.script.Bindings;
 
 import tigase.annotations.TODO;
@@ -43,6 +44,8 @@ import tigase.net.*;
 
 import tigase.server.script.CommandIfc;
 
+import tigase.server.xmppclient.ClientConnectionManager;
+import tigase.server.xmppclient.ClientTrustManagerFactory;
 import tigase.xmpp.BareJID;
 
 import tigase.stats.StatisticsList;
@@ -1366,6 +1369,13 @@ public abstract class ConnectionManager<IO extends XMPPIOService<?>>
 			try {
 				serv.accept(sc);
 				if (getSocketType() == SocketType.ssl) {
+                    if ("c2s".equals(getName())) {
+                        ClientTrustManagerFactory factory =
+                                ((ClientConnectionManager) ConnectionManager.this)
+                                .getClientTrustManagerFactory();
+                        TrustManager[] x = factory.getManager((XMPPIOService<Object>) serv);
+                        serv.setX509TrustManagers(x);
+                    }
 					serv.startSSL(false, isTlsWantClientAuthEnabled());
 				}    // end of if (socket == SocketType.ssl)
 				serviceStarted(serv);
