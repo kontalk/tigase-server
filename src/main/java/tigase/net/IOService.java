@@ -411,7 +411,17 @@ public abstract class IOService<RefObject>
 				tls_hostname = (String) this.getSessionData().get("remote-hostname");
 			port = ((InetSocketAddress) socketIO.getSocketChannel().getRemoteAddress()).getPort();
 		}
-		TLSWrapper wrapper = new TLSWrapper(TLSUtil.getSSLContext("SSL", tls_hostname, clientMode),
+
+        SSLContext sslContext;
+
+        if (x509TrustManagers != null) {
+            sslContext = TLSUtil.getSSLContext("SSL", tls_hostname, clientMode,
+                    x509TrustManagers);
+        } else {
+            sslContext = TLSUtil.getSSLContext("SSL", tls_hostname, clientMode);
+        }
+
+		TLSWrapper wrapper = new TLSWrapper(sslContext,
 				this, tls_hostname, port, clientMode, wantClientAuth);
 
 		socketIO = new TLSIO(socketIO, wrapper, byteOrder());
