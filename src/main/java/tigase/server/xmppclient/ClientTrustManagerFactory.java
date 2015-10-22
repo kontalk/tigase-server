@@ -81,29 +81,7 @@ public class ClientTrustManagerFactory {
 	}
 
 	public TrustManager[] getManager(final VHostItem vHost) {
-		TrustManager[] result = trustManagers.get(vHost);
-
-		if (result == null) {
-			if (log.isLoggable(Level.FINEST))
-				log.finest("Creating new TrustManager for VHost " + vHost);
-
-			result = defaultTrustManagers;
-			String path = vHost.getData(CA_CERT_PATH);
-			if (log.isLoggable(Level.FINEST))
-				log.finest("CA cert path=" + path + " for VHost " + vHost);
-			if (path != null) {
-				TrustManager[] tmp = loadTrustedCert(path);
-				if (tmp != null) {
-					if (log.isLoggable(Level.FINEST))
-						log.finest("Using custom TrustManager for VHost " + vHost);
-					result = tmp;
-					trustManagers.put(vHost, result);
-				}
-			}
-		} else if (log.isLoggable(Level.FINEST))
-			log.finest("Found TrustManager for VHost " + vHost);
-
-		return result;
+		return emptyTrustManager;
 	}
 
 	public TrustManager[] getManager(final XMPPIOService<Object> serv) {
@@ -123,7 +101,7 @@ public class ClientTrustManagerFactory {
 
 	public boolean isTlsWantClientAuthEnabled(final VHostItem vhost) {
 		TrustManager[] tmp = getManager(vhost);
-		return tmp != null && tmp.length > 0;
+		return tmp == emptyTrustManager || (tmp != null && tmp.length > 0);
 	}
 
 	protected TrustManager[] loadTrustedCert(String caCertFile) {
