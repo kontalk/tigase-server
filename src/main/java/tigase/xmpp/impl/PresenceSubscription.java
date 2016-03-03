@@ -350,7 +350,8 @@ public class PresenceSubscription extends PresenceAbstract {
 		boolean subscr_changed = roster_util.updateBuddySubscription(session, pres_type,
 				packet.getStanzaFrom());
 
-		if (subscr_changed) {
+		// do not send the subscribed if it's a pre-approval
+		if (subscr_changed && !roster_util.isPreApprovedIn(session, packet.getStanzaFrom())) {
 			Packet forward_p = packet.copyElementOnly();
 
 			forward_p.setPacketTo(session.getConnectionId());
