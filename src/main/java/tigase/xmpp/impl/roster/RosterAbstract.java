@@ -152,7 +152,8 @@ public abstract class RosterAbstract {
 
 	/** Field description */
 	public static final Element[] FEATURES = { new Element("ver", new String[] { "xmlns" },
-			new String[] { "urn:xmpp:features:rosterver" }) };
+			new String[] { "urn:xmpp:features:rosterver" }), new Element("sub", new String[] { "xmlns" },
+			new String[] { "urn:xmpp:features:pre-approval" }) };
 
 	/** Field description */
 	public static final Element[] DISCO_FEATURES = { new Element("feature", new String[] {
