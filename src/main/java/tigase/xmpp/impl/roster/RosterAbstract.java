@@ -111,20 +111,22 @@ public abstract class RosterAbstract {
 
 	/** Field description */
 	public static final EnumSet<SubscriptionType> TO_SUBSCRIBED = EnumSet.of(
-			SubscriptionType.to, SubscriptionType.to_pending_in, SubscriptionType.both);
+			SubscriptionType.to, SubscriptionType.to_pending_in, SubscriptionType.both,
+			SubscriptionType.to_pre_approval_out);
 
 	/** Field description */
 	public static final EnumSet<SubscriptionType> SUB_TO = EnumSet.of(SubscriptionType.to,
-			SubscriptionType.to_pending_in);
+			SubscriptionType.to_pending_in, SubscriptionType.to_pre_approval_out);
 
 	/** Field description */
 	public static final EnumSet<SubscriptionType> SUB_NONE = EnumSet.of(SubscriptionType
 			.none, SubscriptionType.none_pending_out, SubscriptionType.none_pending_in,
-			SubscriptionType.none_pending_out_in);
+			SubscriptionType.none_pending_out_in, SubscriptionType.none_pending_out_pre_approval_out,
+			SubscriptionType.none_pending_in_pre_approval_in);
 
 	/** Field description */
 	public static final EnumSet<SubscriptionType> SUB_FROM = EnumSet.of(SubscriptionType
-			.from, SubscriptionType.from_pending_out);
+			.from, SubscriptionType.from_pending_out, SubscriptionType.from_pre_approval_in);
 
 	/** Field description */
 	public static final EnumSet<SubscriptionType> SUB_BOTH = EnumSet.of(SubscriptionType
@@ -133,12 +135,12 @@ public abstract class RosterAbstract {
 	/** Field description */
 	public static final EnumSet<SubscriptionType> PENDING_OUT = EnumSet.of(SubscriptionType
 			.none_pending_out, SubscriptionType.none_pending_out_in, SubscriptionType
-			.from_pending_out);
+			.from_pending_out, SubscriptionType.none_pending_out_pre_approval_out);
 
 	/** Field description */
 	public static final EnumSet<SubscriptionType> PENDING_IN = EnumSet.of(SubscriptionType
 			.none_pending_in, SubscriptionType.none_pending_out_in, SubscriptionType
-			.to_pending_in);
+			.to_pending_in, SubscriptionType.none_pending_in_pre_approval_in);
 
 	/** Field description */
 	public static final EnumSet<StanzaType> INITIAL_PRESENCES = EnumSet.of(StanzaType
@@ -146,7 +148,7 @@ public abstract class RosterAbstract {
 
 	/** Holds all {link @SubscriptionType} elements that can be perceived as <em>FROM</em> subscription */
 	public static final EnumSet<SubscriptionType> FROM_SUBSCRIBED = EnumSet.of(
-			SubscriptionType.from, SubscriptionType.from_pending_out, SubscriptionType.both);
+			SubscriptionType.from, SubscriptionType.from_pending_out, SubscriptionType.from_pre_approval_in, SubscriptionType.both);
 
 	/** Field description */
 	public static final Element[] FEATURES = { new Element("ver", new String[] { "xmlns" },
@@ -167,16 +169,20 @@ public abstract class RosterAbstract {
 	// ~--- static initializers --------------------------------------------------
 	static {
 		subsToStateMap.put(SubscriptionType.none, StateTransition.none);
-		subsToStateMap.put(SubscriptionType.none_pending_out, StateTransition
-				.none_pending_out);
+		subsToStateMap.put(SubscriptionType.none_pre_approval_in, StateTransition.none_pre_approval_in);
+		subsToStateMap.put(SubscriptionType.none_pre_approval_out, StateTransition.none_pre_approval_out);
+		subsToStateMap.put(SubscriptionType.none_pre_approval_out_in, StateTransition.none_pre_approval_out_in);
+		subsToStateMap.put(SubscriptionType.none_pending_out, StateTransition.none_pending_out);
+		subsToStateMap.put(SubscriptionType.none_pending_out_pre_approval_out, StateTransition.none_pending_out_pre_approval_out);
 		subsToStateMap.put(SubscriptionType.none_pending_in, StateTransition.none_pending_in);
-		subsToStateMap.put(SubscriptionType.none_pending_out_in, StateTransition
-				.none_pending_out_in);
+		subsToStateMap.put(SubscriptionType.none_pending_in_pre_approval_in, StateTransition.none_pending_in_pre_approval_in);
+		subsToStateMap.put(SubscriptionType.none_pending_out_in, StateTransition.none_pending_out_in);
 		subsToStateMap.put(SubscriptionType.to, StateTransition.to);
+		subsToStateMap.put(SubscriptionType.to_pre_approval_out, StateTransition.to_pre_approval_out);
 		subsToStateMap.put(SubscriptionType.to_pending_in, StateTransition.to_pending_in);
 		subsToStateMap.put(SubscriptionType.from, StateTransition.from);
-		subsToStateMap.put(SubscriptionType.from_pending_out, StateTransition
-				.from_pending_out);
+		subsToStateMap.put(SubscriptionType.from_pending_out, StateTransition.from_pending_out);
+		subsToStateMap.put(SubscriptionType.from_pre_approval_in, StateTransition.from_pre_approval_in);
 		subsToStateMap.put(SubscriptionType.both, StateTransition.both);
 	}
 
@@ -202,11 +208,11 @@ public abstract class RosterAbstract {
 	// +----------------------------------------------------------------+
 	// | EXISTING STATE | ROUTE? | NEW STATE |
 	// +----------------------------------------------------------------+
-	// | "None" | no | no state change |
-	// | "None + Pending Out" | no | no state change |
+	// | "None" | no | pre-approval |
+	// | "None + Pending Out" | no | pre-approval |
 	// | "None + Pending In" | yes | "From" |
 	// | "None + Pending Out/In" | yes | "From + Pending Out" |
-	// | "To" | no | no state change |
+	// | "To" | no | pre-approval |
 	// | "To + Pending In" | yes | "Both" |
 	// | "From" | no | no state change |
 	// | "From + Pending Out" | no | no state change |
@@ -317,15 +323,61 @@ public abstract class RosterAbstract {
 	 *
 	 */
 	public enum StateTransition {
-		none(SubscriptionType.none,                                       // Table 1.
+		none(SubscriptionType.none_pre_approval_out,                          // Table 1.
 				 SubscriptionType.none,                                       // Table 2.
 				 SubscriptionType.none_pending_in,                            // Table 3.
 				 SubscriptionType.none,                                       // Table 4.
-				 SubscriptionType.none,                                       // Table 5.
+				 SubscriptionType.none_pre_approval_in,                       // Table 5.
 				 SubscriptionType.none,                                       // Table 6.
 				 SubscriptionType.none_pending_out,                           // Table 7.
 				 SubscriptionType.none                                        // Table 8.
-				 ), none_pending_out(SubscriptionType.none_pending_out,       // Table 1.
+				 ),
+		none_pre_approval_out(SubscriptionType.none_pre_approval_out,
+				 SubscriptionType.none,
+				 SubscriptionType.from,
+				 SubscriptionType.none_pre_approval_out,
+				 SubscriptionType.none_pre_approval_out_in,
+				 SubscriptionType.none_pre_approval_out,
+				 SubscriptionType.none_pending_out_pre_approval_out,
+				 SubscriptionType.none_pre_approval_out
+				 ),
+		none_pre_approval_in(SubscriptionType.none_pre_approval_out_in,
+				 SubscriptionType.none_pre_approval_in,
+				 SubscriptionType.none_pending_in_pre_approval_in,
+				 SubscriptionType.none_pre_approval_in,
+				 SubscriptionType.none_pre_approval_in,
+				 SubscriptionType.none,
+				 SubscriptionType.to,
+				 SubscriptionType.none_pre_approval_in
+				 ),
+		none_pre_approval_out_in(SubscriptionType.none_pre_approval_out_in,
+				 SubscriptionType.none_pre_approval_in,
+				 SubscriptionType.from_pre_approval_in,
+				 SubscriptionType.none_pre_approval_out_in,
+				 SubscriptionType.none_pre_approval_out_in,
+				 SubscriptionType.none_pre_approval_out,
+				 SubscriptionType.to_pre_approval_out,
+				 SubscriptionType.none_pre_approval_out_in
+				 ),
+		none_pending_out_pre_approval_out(SubscriptionType.none_pending_out_pre_approval_out,
+				 SubscriptionType.none_pending_out,
+				 SubscriptionType.from_pending_out,
+				 SubscriptionType.none_pending_out_pre_approval_out,
+				 SubscriptionType.to_pre_approval_out,
+				 SubscriptionType.none_pre_approval_out,
+				 SubscriptionType.none_pending_out_pre_approval_out,
+				 SubscriptionType.none_pre_approval_out
+				 ),
+		none_pending_in_pre_approval_in(SubscriptionType.from_pre_approval_in,
+				 SubscriptionType.none_pre_approval_in,
+				 SubscriptionType.none_pending_in_pre_approval_in,
+				 SubscriptionType.none_pre_approval_in,
+				 SubscriptionType.none_pending_in_pre_approval_in,
+				 SubscriptionType.none_pending_in,
+				 SubscriptionType.to_pending_in,
+				 SubscriptionType.none_pending_in_pre_approval_in
+				 ),
+		none_pending_out(SubscriptionType.none_pending_out_pre_approval_out,  // Table 1.
 				 SubscriptionType.none_pending_out,                           // Table 2.
 				 SubscriptionType.none_pending_out_in,                        // Table 3.
 				 SubscriptionType.none_pending_out,                           // Table 4.
@@ -333,15 +385,17 @@ public abstract class RosterAbstract {
 				 SubscriptionType.none,                                       // Table 6.
 				 SubscriptionType.none_pending_out,                           // Table 7.
 				 SubscriptionType.none                                        // Table 8.
-				 ), none_pending_in(SubscriptionType.from,                    // Table 1.
+				 ),
+		none_pending_in(SubscriptionType.from,            	                  // Table 1.
 				 SubscriptionType.none,                                       // Table 2.
 				 SubscriptionType.none_pending_in,                            // Table 3.
 				 SubscriptionType.none,                                       // Table 4.
-				 SubscriptionType.none_pending_in,                            // Table 5.
+				 SubscriptionType.none_pending_in_pre_approval_in,            // Table 5.
 				 SubscriptionType.none_pending_in,                            // Table 6.
 				 SubscriptionType.none_pending_out_in,                        // Table 7.
 				 SubscriptionType.none_pending_in                             // Table 8.
-				 ), none_pending_out_in(SubscriptionType.from_pending_out,    // Table 1.
+				 ),
+		none_pending_out_in(SubscriptionType.from_pending_out,                // Table 1.
 				 SubscriptionType.none_pending_out,                           // Table 2.
 				 SubscriptionType.none_pending_out_in,                        // Table 3.
 				 SubscriptionType.none_pending_out,                           // Table 4.
@@ -349,7 +403,8 @@ public abstract class RosterAbstract {
 				 SubscriptionType.none_pending_in,                            // Table 6.
 				 SubscriptionType.none_pending_out_in,                        // Table 7.
 				 SubscriptionType.none_pending_in                             // Table 8.
-				 ), to(SubscriptionType.to,                                   // Table 1.
+				 ),
+		to(SubscriptionType.to_pre_approval_out,                              // Table 1.
 				 SubscriptionType.to,                                         // Table 2.
 				 SubscriptionType.to_pending_in,                              // Table 3.
 				 SubscriptionType.to,                                         // Table 4.
@@ -357,7 +412,8 @@ public abstract class RosterAbstract {
 				 SubscriptionType.none,                                       // Table 6.
 				 SubscriptionType.to,                                         // Table 7.
 				 SubscriptionType.none                                        // Table 8.
-				 ), to_pending_in(SubscriptionType.both,                      // Table 1.
+				 ),
+		to_pending_in(SubscriptionType.both,                                  // Table 1.
 				 SubscriptionType.to,                                         // Table 2.
 				 SubscriptionType.to_pending_in,                              // Table 3.
 				 SubscriptionType.to,                                         // Table 4.
@@ -365,15 +421,33 @@ public abstract class RosterAbstract {
 				 SubscriptionType.none_pending_in,                            // Table 6.
 				 SubscriptionType.to_pending_in,                              // Table 7.
 				 SubscriptionType.none_pending_in                             // Table 8.
-				 ), from(SubscriptionType.from,                               // Table 1.
+				 ),
+		to_pre_approval_out(SubscriptionType.to_pre_approval_out,
+				 SubscriptionType.to,
+				 SubscriptionType.both,
+				 SubscriptionType.to_pre_approval_out,
+				 SubscriptionType.to_pre_approval_out,
+				 SubscriptionType.none_pre_approval_out,
+				 SubscriptionType.to_pre_approval_out,
+				 SubscriptionType.none_pre_approval_out),
+		from_pre_approval_in(SubscriptionType.from_pre_approval_in,
+				 SubscriptionType.none_pre_approval_in,
+				 SubscriptionType.from_pre_approval_in,
+				 SubscriptionType.none_pre_approval_in,
+				 SubscriptionType.from_pre_approval_in,
+				 SubscriptionType.from,
+				 SubscriptionType.both,
+				 SubscriptionType.from_pre_approval_in),
+		from(SubscriptionType.from,                                           // Table 1.
 				 SubscriptionType.none,                                       // Table 2.
 				 SubscriptionType.from,                                       // Table 3.
 				 SubscriptionType.none,                                       // Table 4.
-				 SubscriptionType.from,                                       // Table 5.
+				 SubscriptionType.from_pre_approval_in,                       // Table 5.
 				 SubscriptionType.from,                                       // Table 6.
 				 SubscriptionType.from_pending_out,                           // Table 7.
 				 SubscriptionType.from                                        // Table 8.
-				 ), from_pending_out(SubscriptionType.from_pending_out,       // Table 1.
+				 ),
+		from_pending_out(SubscriptionType.from_pending_out,                   // Table 1.
 				 SubscriptionType.none_pending_out,                           // Table 2.
 				 SubscriptionType.from_pending_out,                           // Table 3.
 				 SubscriptionType.none_pending_out,                           // Table 4.
@@ -381,7 +455,8 @@ public abstract class RosterAbstract {
 				 SubscriptionType.from,                                       // Table 6.
 				 SubscriptionType.from_pending_out,                           // Table 7.
 				 SubscriptionType.from                                        // Table 8.
-				 ), both(SubscriptionType.both,                               // Table 1.
+				 ),
+		both(SubscriptionType.both,                                           // Table 1.
 				 SubscriptionType.to,                                         // Table 2.
 				 SubscriptionType.both,                                       // Table 3.
 				 SubscriptionType.to,                                         // Table 4.
@@ -428,15 +503,29 @@ public abstract class RosterAbstract {
 		none("none", null), none_pending_out("none", "subscribe"), none_pending_in("none",
 				null), none_pending_out_in("none", "subscribe"), to("to", null), to_pending_in(
 				"to", null), from("from", null), from_pending_out("from", "subscribe"), both(
-				"both", null), remove("remove", null);
+				"both", null), remove("remove", null),
+				none_pre_approval_in("none", null, true),
+				none_pre_approval_out("none", null, true),
+				none_pre_approval_out_in("none", null, true),
+				none_pending_out_pre_approval_out("none", "subscribe", true),
+				none_pending_in_pre_approval_in("none", null, true),
+				from_pre_approval_in("from", null, true),
+				to_pre_approval_out("to", null, true);
 
 		private Map<String, String> attrs = new LinkedHashMap<String, String>(2, 1.0f);
 
 		private SubscriptionType(String subscr, String ask) {
+			this(subscr, ask, false);
+		}
+
+		private SubscriptionType(String subscr, String ask, boolean approved) {
 			attrs.put("subscription", subscr);
 			if (ask != null) {
 				attrs.put("ask", ask);
 			}    // end of if (ask != null)
+			if (approved) {
+				attrs.put("approved", "true");
+			}
 		}
 
 		public Map<String, String> getSubscriptionAttr() {
