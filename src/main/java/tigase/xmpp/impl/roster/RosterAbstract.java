@@ -150,6 +150,16 @@ public abstract class RosterAbstract {
 	public static final EnumSet<SubscriptionType> FROM_SUBSCRIBED = EnumSet.of(
 			SubscriptionType.from, SubscriptionType.from_pending_out, SubscriptionType.from_pre_approval_in, SubscriptionType.both);
 
+	/** Holds all {link @SubscriptionType} that are pre-approved subscriptions on the contact's side */
+	public static final EnumSet<SubscriptionType> PRE_APPROVED_IN = EnumSet.of(
+			SubscriptionType.none_pre_approval_in, SubscriptionType.none_pre_approval_out_in,
+			SubscriptionType.none_pending_in_pre_approval_in, SubscriptionType.from_pre_approval_in);
+
+	/** Holds all {link @SubscriptionType} that are pre-approved subscriptions on the user's side */
+	public static final EnumSet<SubscriptionType> PRE_APPROVED_OUT = EnumSet.of(
+			SubscriptionType.none_pre_approval_out, SubscriptionType.none_pre_approval_out_in,
+			SubscriptionType.none_pending_out_pre_approval_out, SubscriptionType.to_pre_approval_out);
+
 	/** Field description */
 	public static final Element[] FEATURES = { new Element("ver", new String[] { "xmlns" },
 			new String[] { "urn:xmpp:features:rosterver" }), new Element("sub", new String[] { "xmlns" },
@@ -868,6 +878,20 @@ public abstract class RosterAbstract {
 		SubscriptionType subscr = getBuddySubscription(session, jid);
 
 		return TO_SUBSCRIBED.contains(subscr);
+	}
+
+	public boolean isPreApprovedIn(final XMPPResourceConnection session, JID jid)
+					throws NotAuthorizedException, TigaseDBException {
+		SubscriptionType subscr = getBuddySubscription(session, jid);
+
+		return PRE_APPROVED_IN.contains(subscr);
+	}
+
+	public boolean isPreApprovedOut(final XMPPResourceConnection session, JID jid)
+			throws NotAuthorizedException, TigaseDBException {
+		SubscriptionType subscr = getBuddySubscription(session, jid);
+
+		return PRE_APPROVED_OUT.contains(subscr);
 	}
 
 	public abstract void setBuddyName(final XMPPResourceConnection session, JID buddy,
