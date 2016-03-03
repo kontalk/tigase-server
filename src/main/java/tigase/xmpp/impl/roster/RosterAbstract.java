@@ -515,12 +515,12 @@ public abstract class RosterAbstract {
 				null), none_pending_out_in("none", "subscribe"), to("to", null), to_pending_in(
 				"to", null), from("from", null), from_pending_out("from", "subscribe"), both(
 				"both", null), remove("remove", null),
-				none_pre_approval_in("none", null, true),
+				none_pre_approval_in("none", null),
 				none_pre_approval_out("none", null, true),
 				none_pre_approval_out_in("none", null, true),
 				none_pending_out_pre_approval_out("none", "subscribe", true),
-				none_pending_in_pre_approval_in("none", null, true),
-				from_pre_approval_in("from", null, true),
+				none_pending_in_pre_approval_in("none", null),
+				from_pre_approval_in("from", null),
 				to_pre_approval_out("to", null, true);
 
 		private Map<String, String> attrs = new LinkedHashMap<String, String>(2, 1.0f);
