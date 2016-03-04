@@ -55,6 +55,7 @@ import tigase.xmpp.impl.annotation.Id;
 import tigase.xmpp.impl.roster.RosterAbstract;
 import tigase.xmpp.impl.roster.RosterAbstract.PresenceType;
 
+import static tigase.xmpp.impl.roster.RosterAbstract.PRE_APPROVED_IN;
 import static tigase.xmpp.impl.roster.RosterAbstract.SUB_NONE;
 
 
@@ -296,9 +297,18 @@ public class PresenceSubscription extends PresenceAbstract {
 			if (curr_sub == null) {
 				roster_util.addBuddy(session, packet.getStanzaFrom(), null, null, null);
 			}    // end of if (curr_sub == null)
+			boolean isPreApproved = roster_util.isPreApprovedOut(session, packet.getStanzaFrom());
 			roster_util.updateBuddySubscription(session, pres_type, packet.getStanzaFrom());
 			if (!autoAuthorize) {
-				updatePresenceChange(packet, session, results);
+				// broadcast the subscription request only if it wasn't pre-approved
+				if (!isPreApproved) {
+					updatePresenceChange(packet, session, results);
+				} else {
+					// was pre-approved, update status and send probe
+					roster_util.updateBuddyChange(session, results, roster_util.getBuddyItem(session,
+							packet.getStanzaFrom().copyWithoutResource()));
+					broadcastProbe(session, results, settings);
+				}
 			} else {
 				roster_util.setBuddySubscription(session, RosterAbstract.SubscriptionType.both, packet
 						.getStanzaFrom().copyWithoutResource());
@@ -538,10 +548,16 @@ public class PresenceSubscription extends PresenceAbstract {
 		// subscriptions in case of synchronization loss
 		boolean subscr_changed = false;
 
-		forwardPresence(results, packet, session.getJID().copyWithoutResource());
-
 		RosterAbstract.SubscriptionType current_subscription = roster_util.getBuddySubscription(session,
 				packet.getStanzaTo());
+
+		if (PRE_APPROVED_IN.contains(current_subscription)) {
+			// pre-approved, reply with subscribed immediately
+			sendPresence(StanzaType.subscribed, packet.getStanzaFrom(),
+					session.getJID().copyWithoutResource(), results, null);
+		}
+
+		forwardPresence(results, packet, session.getJID().copyWithoutResource());
 
 		if (pres_type == RosterAbstract.PresenceType.out_subscribe) {
 			if (current_subscription == null) {
