@@ -190,7 +190,7 @@ public class C2SDeliveryErrorProcessorTest extends ProcessorTestCase {
 				new String[] { UUID.randomUUID().toString(), from.toString(), to.toString() });
 		packetEl.addChild(new Element("delivery-error", new String[] { "xmlns", "stamp" }, new String[] { "http://tigase.org/delivery-error", stampAfter }));
 		packet = Packet.packetInstance(packetEl);
-		assertTrue(C2SDeliveryErrorProcessor.preProcess(packet, sessionToRes1, null, results, null, messageProcessor));
+		assertFalse(C2SDeliveryErrorProcessor.preProcess(packet, sessionToRes1, null, results, null, messageProcessor));
 		assertEquals(0, results.size());
 	}	
 	
