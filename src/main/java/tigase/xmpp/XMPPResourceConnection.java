@@ -564,6 +564,10 @@ public class XMPPResourceConnection
 		return authRepo;
 	}
 
+	public long getAuthenticationTime() {
+		return authenticationTime;
+	}
+
 	/**
 	 * Method description
 	 *
