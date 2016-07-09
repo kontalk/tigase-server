@@ -127,10 +127,12 @@ public class C2SDeliveryErrorProcessorTest extends ProcessorTestCase {
 		JID toRes2 = to.copyWithResource("res2");
 		
 		XMPPResourceConnection sessionToRes2 = getSession(JID.jidInstance("c2s@example.com/" + UUID.randomUUID().toString()), toRes2);
+		sessionToRes2.authorizeJID(sessionToRes2.getBareJID(), false);
 		Thread.sleep(1);
 		String stampBefore = String.valueOf(System.currentTimeMillis());
 		Thread.sleep(1);
 		XMPPResourceConnection sessionToRes1 = getSession(JID.jidInstance("c2s@example.com/" + UUID.randomUUID().toString()), toRes1);
+		sessionToRes1.authorizeJID(sessionToRes1.getBareJID(), false);
 		Thread.sleep(1);
 		String stampAfter = String.valueOf(System.currentTimeMillis());
 		

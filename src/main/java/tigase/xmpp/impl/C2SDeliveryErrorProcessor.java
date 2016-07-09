@@ -130,7 +130,7 @@ public class C2SDeliveryErrorProcessor {
 
 				boolean processed = false;
 				for (XMPPResourceConnection conn : sessionsForMessageDelivery) {
-					if (conn.getAuthTime() <= time)
+					if (conn.getAuthenticationTime() <= time)
 						continue;
 					
 					Packet result = packet.copyElementOnly();
