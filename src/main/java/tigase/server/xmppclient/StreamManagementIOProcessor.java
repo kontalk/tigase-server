@@ -79,6 +79,8 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 	private static final String RESUMPTION_TIMEOUT_PROP_KEY = "resumption-timeout";
 	private static final String RESUMPTION_TIMEOUT_START_KEY = "resumption-timeout-start";
 	private static final String STREAM_ID_KEY = XMLNS + "_stream_id";
+	private static final String ACK_TIMEOUT_PROP_KEY = "ack-timeout";
+	private static final String ACK_WAIT_TASK_KEY = XMLNS + "_ack-wait-task";
 	
 	private static final Element[] FEATURES = { new Element("sm", new String[] { "xmlns" },
 			new String[] { XMLNS }) };
@@ -90,6 +92,7 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 	private int max_resumption_timeout = 15 * 60;
 	private int resumption_timeout = 60;
 	private int ack_request_count = DEF_ACK_REQUEST_COUNT_VAL;
+	private int ack_timeout = 0;
 	
 	private ConnectionManager connectionManager;
 		
@@ -210,6 +213,12 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 				OutQueue outQueue = (OutQueue) service.getSessionData().get(OUT_COUNTER_KEY);
 				if (outQueue != null) {
 					outQueue.ack(val);
+
+					TimerTask timerTask = (TimerTask) service.getSessionData().remove(ACK_WAIT_TASK_KEY);
+					if (timerTask != null) {
+						timerTask.cancel();
+					}
+
 				} else {
 					if (log.isLoggable(Level.FINE)) {
 						log.log(Level.FINE, "{0}, outQueue already null while processing: {1}", new Object[] { service, packet });
@@ -261,6 +270,18 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 		OutQueue outQueue = (OutQueue) service.getSessionData().get(OUT_COUNTER_KEY);		
 		if (outQueue != null && shouldRequestAck(service, outQueue)) {
 			service.writeRawData("<" + REQ_NAME + " xmlns='" + XMLNS + "' />");
+
+			if (ack_timeout > 0) {
+				synchronized (service) {
+					TimerTask oldTask = (TimerTask) service.getSessionData().remove(ACK_WAIT_TASK_KEY);
+					if (oldTask != null) {
+						oldTask.cancel();
+					}
+					TimerTask timerTask = new AckTimeoutTask(service);
+					service.getSessionData().put(ACK_WAIT_TASK_KEY, timerTask);
+					connectionManager.addTimerTask(timerTask, ack_timeout * 1000);
+				}
+			}
 		}
 	}
 	
@@ -458,6 +479,11 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 			services.remove(id, service);
 		}
 
+		TimerTask timerTask = (TimerTask) service.getSessionData().remove(ACK_WAIT_TASK_KEY);
+		if (timerTask != null) {
+			timerTask.cancel();
+		}
+
 		if (log.isLoggable(Level.FINEST)) {
 			log.log(Level.FINEST, "{0}, service stopped - resumption disabled, sending unacked packets", new Object[] { service });
 		}		
@@ -481,6 +507,9 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 		}
 		if (props.containsKey(ACK_REQUEST_COUNT_KEY)) {
 			this.ack_request_count = (Integer) props.get(ACK_REQUEST_COUNT_KEY);
+		}
+		if (props.containsKey(ACK_TIMEOUT_PROP_KEY)) {
+			this.ack_timeout = (Integer) props.get(ACK_TIMEOUT_PROP_KEY);
 		}
 	}
 	
@@ -621,7 +650,27 @@ public class StreamManagementIOProcessor implements XMPPIOProcessor {
 		}
 		
 	}
-	
+
+	/**
+	 * AckTimeoutTask class is used for handling timeout of ack requests.
+	 */
+	private class AckTimeoutTask extends TimerTask {
+
+		private final XMPPIOService service;
+
+		public AckTimeoutTask(XMPPIOService service) {
+			this.service = service;
+		}
+
+		@Override
+		public void run() {
+			if (service.isConnected()) {
+				service.forceStop();
+			}
+		}
+
+	}
+
 	protected Counter newCounter() {
 		return new Counter();
 	}
