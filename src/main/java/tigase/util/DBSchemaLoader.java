@@ -660,7 +660,7 @@ class DBSchemaLoader extends SchemaLoader {
 			return Result.ok;
 		}
 		if ( !schema_exists ){
-			db_conn = getDBUri( variables, true, true );
+			db_conn = getDBUri( variables, true, false );
 			log.log( Level.INFO, "DB schema doesn't exists, creating one..., URI: " + db_conn );
 			try {
 				try ( Connection conn = DriverManager.getConnection( db_conn ) ;
