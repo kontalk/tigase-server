@@ -98,6 +98,7 @@ class DBSchemaLoader extends SchemaLoader {
 	public static final String ADMIN_JID_KEY = "adminJID";
 	public static final String ADMIN_JID_PASS_KEY = "adminJIDpass";
 	public static final String LOG_LEVEL_KEY = "logLevel";
+	public static final String USE_SSL = "useSSL";
 	public static final String DASH = "-";
 	// defaults
 	public static final String DATABASE_TYPE_DEF = "mysql";
@@ -305,6 +306,12 @@ class DBSchemaLoader extends SchemaLoader {
 						if ( args.length > i + 1 ){
 							i++;
 							props.setProperty( LOG_LEVEL_KEY, args[i].toUpperCase() );
+						}
+						break;
+					case DASH + USE_SSL:
+						if ( args.length > i + 1 ){
+							i++;
+							props.setProperty( USE_SSL, args[i] );
 						}
 						break;
 				}
@@ -972,6 +979,9 @@ class DBSchemaLoader extends SchemaLoader {
 				db_uri += ";schema=dbo";
 				db_uri += ";lastUpdateCount=false";
 				db_uri += ";cacheMetaData=false";
+				if ( Boolean.valueOf(props.getProperty(USE_SSL)) ) {
+					db_uri += ";encrypt=true";
+				}
 				break;
 			default:
 				db_uri += "//" + props.getProperty( DATABASE_HOSTNAME_KEY ) + "/";
@@ -984,6 +994,13 @@ class DBSchemaLoader extends SchemaLoader {
 				if ( props.getProperty( PASSWORD ) != null
 						 && !props.getProperty( PASSWORD ).isEmpty() ){
 					db_uri += "&password=" + props.getProperty( PASSWORD );
+				}
+				if ( Boolean.valueOf(props.getProperty(USE_SSL)) ) {
+					db_uri += "&useSSL=true";
+				}
+				else if ( props.getProperty(USE_SSL) != null ) {
+					// explicitly disable SSL to avoid a warning by the driver
+					db_uri += "&useSSL=false";
 				}
 				break;
 		}
