@@ -19,6 +19,7 @@
 package tigase.util;
 
 import java.io.*;
+import java.net.URLEncoder;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -99,6 +100,7 @@ class DBSchemaLoader extends SchemaLoader {
 	public static final String ADMIN_JID_PASS_KEY = "adminJIDpass";
 	public static final String LOG_LEVEL_KEY = "logLevel";
 	public static final String USE_SSL = "useSSL";
+	public static final String SERVER_TIMEZONE = "serverTimezone";
 	public static final String DASH = "-";
 	// defaults
 	public static final String DATABASE_TYPE_DEF = "mysql";
@@ -312,6 +314,12 @@ class DBSchemaLoader extends SchemaLoader {
 						if ( args.length > i + 1 ){
 							i++;
 							props.setProperty( USE_SSL, args[i] );
+						}
+						break;
+					case DASH + SERVER_TIMEZONE:
+						if ( args.length > i + 1 ){
+							i++;
+							props.setProperty( SERVER_TIMEZONE, args[i] );
 						}
 						break;
 				}
@@ -1001,6 +1009,14 @@ class DBSchemaLoader extends SchemaLoader {
 				else if ( props.getProperty(USE_SSL) != null ) {
 					// explicitly disable SSL to avoid a warning by the driver
 					db_uri += "&useSSL=false";
+				}
+				if ( props.getProperty(SERVER_TIMEZONE) != null ) {
+					try {
+						db_uri += "&serverTimezone=" + URLEncoder.encode(props.getProperty(SERVER_TIMEZONE), "UTF-8");
+					}
+					catch (UnsupportedEncodingException e) {
+						log.warning("Invalid encoding in "+SERVER_TIMEZONE+" parameter: " + props.getProperty(SERVER_TIMEZONE));
+					}
 				}
 				break;
 		}
