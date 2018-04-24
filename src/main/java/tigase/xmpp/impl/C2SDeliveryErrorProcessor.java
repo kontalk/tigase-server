@@ -122,17 +122,9 @@ public class C2SDeliveryErrorProcessor {
 				String delay = deliveryError.getAttributeStaticStr("stamp");
 				if (delay == null)
 					return true;
-				
-				// maybe we should forward data to only active sessions which were not available at this point??
-				// how to get time of error? or maybe original time of message? timestamp might be slow while 
-				// in other case we might get issues with servers in other timezones!
-				long time = Long.parseLong(delay);
 
 				boolean processed = false;
 				for (XMPPResourceConnection conn : sessionsForMessageDelivery) {
-					if (conn.getAuthenticationTime() <= time)
-						continue;
-					
 					Packet result = packet.copyElementOnly();
 					result.setPacketFrom(packet.getPacketTo());
 					result.setPacketTo(conn.getConnectionId());
