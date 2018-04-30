@@ -297,7 +297,7 @@ public class PresenceSubscription extends PresenceAbstract {
 			if (curr_sub == null) {
 				roster_util.addBuddy(session, packet.getStanzaFrom(), null, null, null);
 			}    // end of if (curr_sub == null)
-			boolean isPreApproved = roster_util.isPreApprovedOut(session, packet.getStanzaFrom());
+			boolean isPreApproved = roster_util.isPreApprovedIn(session, packet.getStanzaFrom());
 			roster_util.updateBuddySubscription(session, pres_type, packet.getStanzaFrom());
 			if (!autoAuthorize) {
 				// broadcast the subscription request only if it wasn't pre-approved
@@ -360,8 +360,7 @@ public class PresenceSubscription extends PresenceAbstract {
 		boolean subscr_changed = roster_util.updateBuddySubscription(session, pres_type,
 				packet.getStanzaFrom());
 
-		// do not send the subscribed if it's a pre-approval
-		if (subscr_changed && !roster_util.isPreApprovedIn(session, packet.getStanzaFrom())) {
+		if (subscr_changed) {
 			Packet forward_p = packet.copyElementOnly();
 
 			forward_p.setPacketTo(session.getConnectionId());
@@ -623,10 +622,15 @@ public class PresenceSubscription extends PresenceAbstract {
 			Queue<Packet> results, Map<String, Object> settings, RosterAbstract.PresenceType pres_type)
 					throws NotAuthorizedException, TigaseDBException, NoConnectionIdException, PolicyViolationException {
 
+		final boolean isPreApproved = roster_util.isPreApprovedOut(session, packet.getStanzaTo());
+
 		// According to RFC-3921 I must forward all these kind presence
 		// requests, it allows to re-synchronize
 		// subscriptions in case of synchronization loss
-		forwardPresence(results, packet, session.getJID().copyWithoutResource());
+		// do not forward the subscribed if it's a pre-approval
+		if (!isPreApproved) {
+			forwardPresence(results, packet, session.getJID().copyWithoutResource());
+		}
 
 		Element initial_presence = session.getPresence();
 		JID     buddy            = packet.getStanzaTo().copyWithoutResource();
@@ -640,7 +644,7 @@ public class PresenceSubscription extends PresenceAbstract {
 		if (subscr_changed) {
 			roster_util.updateBuddyChange(session, results, roster_util.getBuddyItem(session,
 					buddy));
-			if (initial_presence != null) {
+			if (initial_presence != null && !isPreApproved) {
 				if (pres_type == RosterAbstract.PresenceType.out_subscribed) {
 
 					// The contact's server MUST then also send current presence to the user
